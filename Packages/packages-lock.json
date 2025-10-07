@@ -353,7 +353,7 @@
       }
     },
     "com.unity.test-framework": {
-      "version": "1.5.1",
+      "version": "1.6.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
@@ -392,6 +392,20 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
+    },
+    "st.mewli.core": {
+      "version": "https://github.com/mewlist/MewCore.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a746905f30391e8500660a0594a03e642044fdb4"
+    },
+    "st.mewli.di": {
+      "version": "https://github.com/mewlist/Doinject.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "d70cb5dc49526df0840fa20575caf71f5c8fe045"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
