@@ -37,8 +37,6 @@ namespace Domain.GameStates
             gameCompletionSource = new UniTaskCompletionSource<bool>();
             
             HandleBeeDeployment().Forget();
-            // HandleMoveInput().Forget();
-            // HandleFlapInput().Forget();
 
             await gameCompletionSource.Task;
             await UniTask.Yield();
@@ -54,7 +52,8 @@ namespace Domain.GameStates
                 {
                     DeployBee().Forget();
                 }
-                await UniTask.Delay(game.beeDeployDelay, cancellationToken: GameOverToken).SuppressCancellationThrow();
+                await UniTask.Delay(TimeSpan.FromSeconds(game.beeDeployDelay), cancellationToken: GameOverToken)
+                    .SuppressCancellationThrow();
             }
         }
 

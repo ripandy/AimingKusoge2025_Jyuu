@@ -28,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1.45, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 5462987590425309985}
@@ -192,12 +192,12 @@ SpriteRenderer:
   m_SortingLayerID: 1409094245
   m_SortingLayer: 4
   m_SortingOrder: 1
-  m_Sprite: {fileID: 3735870581837909859, guid: aa0b627db22b64efda5a52ca31e5a287, type: 3}
+  m_Sprite: {fileID: 21300000, guid: aa0b627db22b64efda5a52ca31e5a287, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 4.730537, y: 3.27}
+  m_Size: {x: 5.12, y: 3.42}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -212,6 +212,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3422928756578924265}
+  - component: {fileID: 3864291225567529804}
+  - component: {fileID: 5524726687753994266}
+  - component: {fileID: -9080156380386203559}
+  - component: {fileID: -4888524532401958390}
   m_Layer: 0
   m_Name: Bee
   m_TagString: Untagged
@@ -235,6 +239,74 @@ Transform:
   - {fileID: 5462987590425309985}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!50 &3864291225567529804
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9106378410089508891}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0.25
+  m_AngularDamping: 0.1
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &5524726687753994266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9106378410089508891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ddbb4dce61164b40a68ee69bf61a115, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Controller.BeeMoveController
+  moveInput: {fileID: 11400000, guid: 65161611ae4d54aa0961a4d296b314c4, type: 2}
+  baseTransform: {fileID: 5462987590425309985}
+--- !u!114 &-9080156380386203559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9106378410089508891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75a37dfc53384fbea069d2732b580708, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BoundaryHandler
+  horizontalBoundaries: {x: -12, y: 12}
+--- !u!114 &-4888524532401958390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9106378410089508891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b0ed0bdfd0b490baa1333bfd02aa631, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeeCollisionHandler
+  onFlowerHarvested: {fileID: 0}
+  harvestingDelay: 1
 --- !u!1 &9136089861212585374
 GameObject:
   m_ObjectHideFlags: 0
@@ -244,7 +316,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5462987590425309985}
-  - component: {fileID: 3057564962949721154}
+  - component: {fileID: 3382871525935385994}
   m_Layer: 0
   m_Name: Base
   m_TagString: Untagged
@@ -262,29 +334,23 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 693933104020573144}
   - {fileID: 6452071412923512594}
   m_Father: {fileID: 3422928756578924265}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &3057564962949721154
-Rigidbody2D:
-  serializedVersion: 5
+--- !u!70 &3382871525935385994
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9136089861212585374}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 1
-  m_AngularDamping: 0.05
-  m_GravityScale: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -292,7 +358,23 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.2, y: -0.05}
+  m_Size: {x: 5, y: 3.4}
+  m_Direction: 1

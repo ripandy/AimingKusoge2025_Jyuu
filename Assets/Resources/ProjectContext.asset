@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 225e19a76c6d4661b1fae5aea8190bc2, type: 3}
-  m_Name: FlowerList
-  m_EditorClassIdentifier: InterfaceAdaptors::Contents.SOAR.FlowerList
-  list: []
-  valueEventType: 0
-  autoResetValue: 1
+  m_Script: {fileID: 11500000, guid: d29db44a14714e3a9e05289857d9cdf2, type: 3}
+  m_Name: ProjectContext
+  m_EditorClassIdentifier: Doinject::Doinject.ProjectContext
+  <InstallerScriptableObjects>k__BackingField: []
+  <InstallerPrefabs>k__BackingField: []

@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: aa0b627db22b64efda5a52ca31e5a287
+guid: 2a4bf2cd30c534d529182f9995220992
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3735870581837909859
-    second: Bee_Body_0
+      213: 8949431825832941283
+    second: Flower_3_0
+  - first:
+      213: -8035963115546834052
+    second: Flower_3_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +78,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -139,13 +142,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bee_Body_0
+      name: Flower_3_0
       rect:
         serializedVersion: 2
-        x: 486
-        y: 1065
-        width: 473
-        height: 327
+        x: 202
+        y: 191
+        width: 1084
+        height: 2012
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +157,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 36fc74d208a78d330800000000000000
-      internalID: 3735870581837909859
+      spriteID: 3e6195854d4c23c70800000000000000
+      internalID: 8949431825832941283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Flower_3_1
+      rect:
+        serializedVersion: 2
+        x: 919
+        y: 69
+        width: 56
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7b80bd6f168a7090800000000000000
+      internalID: -8035963115546834052
       vertices: []
       indices: 
       edges: []
@@ -174,7 +199,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Bee_Body_0: 3735870581837909859
+      Flower_3_0: 8949431825832941283
+      Flower_3_1: -8035963115546834052
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

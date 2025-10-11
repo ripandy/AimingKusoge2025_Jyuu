@@ -13,6 +13,10 @@ namespace Domain
         public int Pollen { get; internal set; }
         public int Capacity { get; internal set; }
         public int HarvestPower { get; internal set; }
+        public float PollenRate => (float)Pollen / Capacity;
+        
+        private float baseMoveSpeed;
+        public float MoveSpeed => baseMoveSpeed * (1f - PollenRate);
         
         public bool IsFull => Pollen >= Capacity;
 
@@ -20,8 +24,9 @@ namespace Domain
         {
             Id = id;
             Pollen = 0;
-            Capacity = 1;
-            HarvestPower = 1;
+            Capacity = 100;
+            HarvestPower = 20;
+            baseMoveSpeed = 5f;
         }
         
         internal void Initialize()
@@ -29,6 +34,7 @@ namespace Domain
             Pollen = 0;
             Capacity = 1;
             HarvestPower = 1;
+            baseMoveSpeed = 5f;
         }
         
         internal void Carry(int amount)

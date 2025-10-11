@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: aa0b627db22b64efda5a52ca31e5a287
+guid: fe22ce54de1584f8a95228061948b48a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3735870581837909859
-    second: Bee_Body_0
+      213: -2340602708120694715
+    second: Flower_6_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bee_Body_0
+      name: Flower_6_0
       rect:
         serializedVersion: 2
-        x: 486
-        y: 1065
-        width: 473
-        height: 327
+        x: 405
+        y: 0
+        width: 797
+        height: 2077
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 36fc74d208a78d330800000000000000
-      internalID: 3735870581837909859
+      spriteID: 540162eec32848fd0800000000000000
+      internalID: -2340602708120694715
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Bee_Body_0: 3735870581837909859
+      Flower_6_0: -2340602708120694715
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
