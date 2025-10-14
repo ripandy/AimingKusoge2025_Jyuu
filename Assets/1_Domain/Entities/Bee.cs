@@ -46,10 +46,19 @@ namespace Domain
             Pollen = Math.Min(Capacity, Pollen + carried);
         }
     }
-
-    public interface IBeePresenter
+    
+    public interface IBeeMoveController
     {
-        UniTask<int> WaitForHarvest(int id, CancellationToken cancellationToken = default);
-        UniTask WaitForBeeHive(int id, CancellationToken cancellationToken = default);
+        void Initialize(Bee bee);
+    }
+
+    public interface IBeeHarvestPresenter
+    {
+        UniTask<int> WaitForHarvest(CancellationToken cancellationToken = default);
+    }
+    
+    public interface IBeeStorePollenPresenter
+    {
+        UniTask WaitForStorePollen(CancellationToken cancellationToken = default);
     }
 }

@@ -201,7 +201,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3053432227349895774}
-  - component: {fileID: 2091791424306076665}
+  - component: {fileID: 5235625067584474718}
   m_Layer: 0
   m_Name: BeeHive
   m_TagString: Untagged
@@ -225,7 +225,7 @@ Transform:
   - {fileID: 2685607204961678874}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2091791424306076665
+--- !u!114 &5235625067584474718
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -234,12 +234,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 5887486447597432257}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fad6268eefb457dbb6a49f1f3e55380, type: 3}
+  m_Script: {fileID: 11500000, guid: fc01f7e5947b48b08968cdfaccb68380, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeePresenter
-  beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
-  flowerList: {fileID: 11400000, guid: 2109ccf4c9b0a428b9ea4b2ef839575d, type: 2}
-  onFlowerHarvested: {fileID: 0}
-  onBeeArrivedAtHive: {fileID: 0}
+  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeePresenterFactory
   beePrefab: {fileID: 9106378410089508891, guid: 2f3c17120ad0947b9a57b2abe6fed78c, type: 3}
   spawnPoint: {fileID: 8398698394875549564}

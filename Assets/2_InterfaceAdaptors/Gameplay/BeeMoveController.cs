@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 
 namespace Kusoge.Gameplay
 {
-    public class BeeMoveController : MonoBehaviour
+    public class BeeMoveController : MonoBehaviour, IBeeMoveController
     {
         [SerializeField] private Variable<Vector2> moveInput;
         [SerializeField] private Transform baseTransform;

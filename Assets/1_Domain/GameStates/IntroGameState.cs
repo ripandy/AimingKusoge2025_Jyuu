@@ -31,11 +31,13 @@ namespace Domain.GameStates
             {
                 bee.Initialize();
             }
-            foreach (var flower in flowerList)
+
+            for (var index = 0; index < flowerList.Count; index++)
             {
-                flower.Initialize();
+                var flower = flowerList[index];
+                flower.Initialize(index);
             }
-            
+
             await showIntroTask;
             return GameStateEnum.GamePlay;
         }

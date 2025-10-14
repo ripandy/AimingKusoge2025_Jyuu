@@ -12,10 +12,10 @@ namespace Kusoge.Installer
     public class GameplayInstaller : MonoBehaviour, IBindingInstaller
     {
         [SerializeField] private GameJsonableVariable gameJsonableVariable;
-        [SerializeField] private BeeList beeList;
-        [SerializeField] private FlowerList flowerList;
+        [SerializeField] private BeePresenterFactory beePresenterFactory;
 
-        [SerializeField] private BeePresenter beePresenter;
+        [SerializeField] private BeeHarvestPresenter beeHarvestPresenter;
+        [SerializeField] private BeeStorePollenPresenter beeStorePollenPresenter;
         [SerializeField] private IntroPresenter introPresenter;
         [SerializeField] private GameOverPresenter gameOverPresenter;
 
@@ -26,12 +26,15 @@ namespace Kusoge.Installer
             container.BindSingleton<IntroGameState>();
             container.BindSingleton<PlayGameState>();
             container.BindSingleton<GameOverGameState>();
-
-            container.BindFromInstance<IList<Bee>>(beeList);
-            container.BindFromInstance<IList<Flower>>(flowerList);
+            
+            container.BindFromInstance<IList<Bee>>(new List<Bee>());
+            container.BindFromInstance<IList<Flower>>(new List<Flower>());
+            container.BindFromInstance<IBeePresenterFactory>(beePresenterFactory);
 
             // Presenters
-            container.BindFromInstance<IBeePresenter>(beePresenter);
+            // container.BindFromInstance<IBeePresenter>(beePresenter);
+            container.BindFromInstance<IDictionary<int, IBeeHarvestPresenter>>(new Dictionary<int, IBeeHarvestPresenter>());
+            container.BindFromInstance<IDictionary<int, IBeeStorePollenPresenter>>(new Dictionary<int, IBeeStorePollenPresenter>());
             container.BindFromInstance<IIntroPresenter>(introPresenter);
             container.BindFromInstance<IGameOverPresenter>(gameOverPresenter);
         }

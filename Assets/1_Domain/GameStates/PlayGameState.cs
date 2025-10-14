@@ -1,16 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Domain.Interfaces;
 
 namespace Domain.GameStates
 {
     public class PlayGameState : IGameState, IDisposable
     {
         private Game game;
+        
         private readonly IList<Bee> beeList;
         private readonly IList<Flower> flowerList;
-        private readonly IBeePresenter beePresenter;
+        
+        private readonly IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters;
+        private readonly IDictionary<int, IBeeStorePollenPresenter> beeStorePollenPresenters;
+        
+        private readonly IBeePresenterFactory beePresenterFactory;
 
         public GameStateEnum Id => GameStateEnum.GamePlay;
 
@@ -23,12 +30,16 @@ namespace Domain.GameStates
             Game game,
             IList<Bee> beeList,
             IList<Flower> flowerList,
-            IBeePresenter beePresenter)
+            IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters,
+            IDictionary<int, IBeeStorePollenPresenter> beeStorePollenPresenters,
+            IBeePresenterFactory beePresenterFactory)
         {
             this.game = game;
             this.beeList = beeList;
             this.flowerList = flowerList;
-            this.beePresenter = beePresenter;
+            this.beeHarvestPresenters = beeHarvestPresenters;
+            this.beeStorePollenPresenters = beeStorePollenPresenters;
+            this.beePresenterFactory = beePresenterFactory;
         }
         
         public async UniTask<GameStateEnum> Running(CancellationToken cancellationToken = default)
@@ -46,60 +57,73 @@ namespace Domain.GameStates
 
         private async UniTaskVoid HandleBeeDeployment()
         {
-            while (cts != null && !GameOverToken.IsCancellationRequested)
-            {
-                if (beeList.Count < game.maxBees)
-                {
-                    DeployBee().Forget();
-                }
-                await UniTask.Delay(TimeSpan.FromSeconds(game.beeDeployDelay), cancellationToken: GameOverToken)
-                    .SuppressCancellationThrow();
-            }
+            if (beeList.Count < game.maxBees)
+                DeployBee().Forget();
+            
+            await UniTask.Delay(TimeSpan.FromSeconds(game.beeDeployDelay), cancellationToken: GameOverToken).SuppressCancellationThrow();
+            
+            if (cts == null || GameOverToken.IsCancellationRequested) return;
+            
+            HandleBeeDeployment().Forget();
         }
 
         private async UniTaskVoid DeployBee()
         {
             var bee = new Bee(Bee.ID++);
             beeList.Add(bee);
+            
+            var beeMoveController = await beePresenterFactory.CreateBeeMoveController(bee, GameOverToken);
+            var beeHarvestPresenter = await beePresenterFactory.CreateBeeHarvestPresenter(bee, GameOverToken);
+            var beeStorePollenPresenter = await beePresenterFactory.CreateBeeStorePollenPresenter(bee, GameOverToken);
+            
+            beeMoveController.Initialize(bee);
+            beeHarvestPresenters[bee.Id] = beeHarvestPresenter;
+            beeStorePollenPresenters[bee.Id] = beeStorePollenPresenter;
+            
+            HandleHarvest(bee, beeHarvestPresenter).Forget();
+            HandleStorePollen(bee, beeStorePollenPresenter).Forget();
+        }
 
-            while (cts != null && !GameOverToken.IsCancellationRequested)
+        private async UniTaskVoid HandleHarvest(Bee bee, IBeeHarvestPresenter beeHarvestPresenter)
+        {
+            var canHarvest = !bee.IsFull && flowerList.Any(f => !f.IsEmpty);
+            if (canHarvest)
             {
-                var (cancelled, result) = await UniTask.WhenAny(
-                    beePresenter.WaitForHarvest(bee.Id, GameOverToken),
-                    beePresenter.WaitForBeeHive(bee.Id, GameOverToken))
-                    .SuppressCancellationThrow();
-                
-                if (cancelled) break;
-                
-                if (result.hasResultLeft)
-                {
-                    HarvestPollen(result.result);
-                    continue;
-                }
-                
-                DepositPollen();
-                if (!game.IsGameOver()) continue;
-                
-                gameCompletionSource.TrySetResult(true);
-                cts?.Cancel();
-            }
-
-            void HarvestPollen(int flowerId)
-            {
+                var flowerId = await beeHarvestPresenter.WaitForHarvest(GameOverToken);
                 var flower = flowerList[flowerId];
-                if (bee.IsFull || flower.IsEmpty) return;
-                
-                var harvested = flower.Harvest(bee.HarvestPower);
-                bee.Carry(harvested);
+                if (!flower.IsEmpty)
+                {
+                    var harvested = flower.Harvest(bee.HarvestPower);
+                    bee.Carry(harvested);
+                    
+                    // TODO: present harvested animation
+                    await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+                }
+            }
+            else
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
             }
             
-            void DepositPollen()
+            if (cts == null || GameOverToken.IsCancellationRequested) return;
+            HandleHarvest(bee, beeHarvestPresenter).Forget();
+        }
+        
+        private async UniTaskVoid HandleStorePollen(Bee bee, IBeeStorePollenPresenter beeStorePollenPresenter)
+        {
+            if (bee.Pollen > 0)
             {
-                if (bee.Pollen <= 0) return;
-                
+                await beeStorePollenPresenter.WaitForStorePollen(GameOverToken);
                 game.CollectPollen(bee.Pollen);
                 bee.Pollen = 0;
             }
+            else
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+            }
+            
+            if (cts == null || GameOverToken.IsCancellationRequested) return;
+            HandleStorePollen(bee, beeStorePollenPresenter).Forget();
         }
 
         public void Dispose()

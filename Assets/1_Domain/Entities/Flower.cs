@@ -6,12 +6,14 @@ namespace Domain
     public struct Flower
     {
         public int pollen;
-        
+     
+        public int Id { get; private set; }   
         public int CurrentPollen { get; internal set; }
         public bool IsEmpty => CurrentPollen <= 0;
         
-        internal void Initialize()
+        internal void Initialize(int id)
         {
+            Id = id;
             CurrentPollen = pollen;
         }
         

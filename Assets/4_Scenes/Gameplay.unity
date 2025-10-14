@@ -1839,9 +1839,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: InterfaceAdaptors::GameplayInstaller
   gameJsonableVariable: {fileID: 11400000, guid: 8796b9d4c99c84f4aa70c93517f3330d, type: 2}
-  beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
-  flowerList: {fileID: 11400000, guid: 2109ccf4c9b0a428b9ea4b2ef839575d, type: 2}
-  beePresenter: {fileID: 2088594441}
+  beePresenterFactory: {fileID: 0}
+  beeHarvestPresenter: {fileID: 0}
+  beeStorePollenPresenter: {fileID: 0}
   introPresenter: {fileID: 1878141192}
   gameOverPresenter: {fileID: 1665923341}
 --- !u!1001 &1571839885
@@ -2912,17 +2912,6 @@ Transform:
   - {fileID: 879142400}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2088594441 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2091791424306076665, guid: eac860f667e144c85b30c2b4aaafe605, type: 3}
-  m_PrefabInstance: {fileID: 4633741618603422042}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fad6268eefb457dbb6a49f1f3e55380, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeePresenter
 --- !u!1 &2135718735
 GameObject:
   m_ObjectHideFlags: 0
