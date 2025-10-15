@@ -215,7 +215,7 @@ GameObject:
   - component: {fileID: 3864291225567529804}
   - component: {fileID: 5524726687753994266}
   - component: {fileID: 1713933332108565806}
-  - component: {fileID: 8996474431323779456}
+  - component: {fileID: 4616101392045905024}
   - component: {fileID: 1249648226048474621}
   m_Layer: 0
   m_Name: Bee
@@ -294,7 +294,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeeHarvestPresenter
   actionDelay: 1
---- !u!114 &8996474431323779456
+--- !u!114 &4616101392045905024
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -303,9 +303,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 9106378410089508891}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b8cc6a30f034a26b8700fc3bb9764ce, type: 3}
+  m_Script: {fileID: 11500000, guid: 456e832937acd4c838ec0638a09518b8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeeStorePollenPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeeStoreNectarPresenter
   actionDelay: 1
 --- !u!114 &1249648226048474621
 MonoBehaviour:
@@ -319,7 +319,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75a37dfc53384fbea069d2732b580708, type: 3}
   m_Name: 
   m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BoundaryHandler
-  horizontalBoundaries: {x: -12, y: 12}
+  horizontalBoundaries: {x: -11, y: 11}
 --- !u!1 &9136089861212585374
 GameObject:
   m_ObjectHideFlags: 0

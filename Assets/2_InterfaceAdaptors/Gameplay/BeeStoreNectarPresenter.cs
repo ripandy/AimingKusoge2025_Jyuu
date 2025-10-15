@@ -6,13 +6,13 @@ using UnityEngine;
 
 namespace Kusoge.Gameplay
 {
-    public class BeeStorePollenPresenter : BeeTriggerAction, IBeeStorePollenPresenter
+    public class BeeStoreNectarPresenter : BeeTriggerAction, IBeeStoreNectarPresenter
     {
         protected override string TargetTag => "BeeHive";
         
         private readonly Subject<Unit> storedToHive = new();
         
-        public UniTask WaitForStorePollen(CancellationToken cancellationToken = default)
+        public UniTask WaitForStoreNectar(CancellationToken cancellationToken = default)
         {
             actionRequested = true;
             return storedToHive.LastAsync(cancellationToken).AsUniTask();
@@ -22,7 +22,7 @@ namespace Kusoge.Gameplay
 
         protected override void ExecuteAction(Transform other)
         {
-            Debug.Log("Bee successfully stored pollen to Hive");
+            Debug.Log("Bee successfully stored nectar to Hive");
             storedToHive.OnNext(Unit.Default);
         }
 

@@ -12,17 +12,17 @@ namespace Domain
         public int maxBees;
         public int beeDeployDelay;
 
-        public int CollectedPollen { get; internal set; }
+        public int CollectedNectar { get; internal set; }
         public string DisplayLevel => level.ToString("D2");
         
         internal void Initialize()
         {
-            CollectedPollen = 0;
+            CollectedNectar = 0;
         }
 
-        internal void CollectPollen(int amount)
+        internal void CollectNectar(int amount)
         {
-            CollectedPollen += amount;
+            CollectedNectar += amount;
         }
 
         internal bool IsGameOver()

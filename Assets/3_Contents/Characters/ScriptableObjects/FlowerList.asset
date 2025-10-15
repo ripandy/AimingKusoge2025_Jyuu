@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: FlowerList
   m_EditorClassIdentifier: InterfaceAdaptors::Contents.SOAR.FlowerList
   list:
-  - pollen: 10000
-  - pollen: 2000
-  - pollen: 500
-  - pollen: 800
-  - pollen: 200
+  - nectar: 100
+  - nectar: 80
+  - nectar: 30
+  - nectar: 40
+  - nectar: 20
   valueEventType: 0
   autoResetValue: 1

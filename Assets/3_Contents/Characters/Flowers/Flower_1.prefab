@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2103902155834451327}
   m_Layer: 0
-  m_Name: FullPollen_Sprite
+  m_Name: FullNectar_Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 2476383722904374777}
   - component: {fileID: 2789579028059757845}
   m_Layer: 0
-  m_Name: EmptyPollen_Sprite
+  m_Name: EmptyNectar_Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

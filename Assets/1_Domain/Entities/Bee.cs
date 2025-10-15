@@ -10,20 +10,20 @@ namespace Domain
         internal static int ID;
         
         public int Id { get; }
-        public int Pollen { get; internal set; }
+        public int Nectar { get; internal set; }
         public int Capacity { get; internal set; }
         public int HarvestPower { get; internal set; }
-        public float PollenRate => (float)Pollen / Capacity;
+        public float NectarRate => (float)Nectar / Capacity;
         
         private float baseMoveSpeed;
-        public float MoveSpeed => baseMoveSpeed * (1f - PollenRate);
+        public float MoveSpeed => baseMoveSpeed * (1f - NectarRate);
         
-        public bool IsFull => Pollen >= Capacity;
+        public bool IsFull => Nectar >= Capacity;
 
         internal Bee(int id)
         {
             Id = id;
-            Pollen = 0;
+            Nectar = 0;
             Capacity = 100;
             HarvestPower = 20;
             baseMoveSpeed = 5f;
@@ -31,7 +31,7 @@ namespace Domain
         
         internal void Initialize()
         {
-            Pollen = 0;
+            Nectar = 0;
             Capacity = 1;
             HarvestPower = 1;
             baseMoveSpeed = 5f;
@@ -39,11 +39,11 @@ namespace Domain
         
         internal void Carry(int amount)
         {
-            var canCarry = Capacity - Pollen;
+            var canCarry = Capacity - Nectar;
             if (canCarry <= 0) return;
             
             var carried = amount < canCarry ? amount : canCarry;
-            Pollen = Math.Min(Capacity, Pollen + carried);
+            Nectar = Math.Min(Capacity, Nectar + carried);
         }
     }
     
@@ -57,8 +57,8 @@ namespace Domain
         UniTask<int> WaitForHarvest(CancellationToken cancellationToken = default);
     }
     
-    public interface IBeeStorePollenPresenter
+    public interface IBeeStoreNectarPresenter
     {
-        UniTask WaitForStorePollen(CancellationToken cancellationToken = default);
+        UniTask WaitForStoreNectar(CancellationToken cancellationToken = default);
     }
 }

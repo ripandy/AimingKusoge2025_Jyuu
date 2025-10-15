@@ -15,7 +15,7 @@ namespace Domain.GameStates
         private readonly IList<Flower> flowerList;
         
         private readonly IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters;
-        private readonly IDictionary<int, IBeeStorePollenPresenter> beeStorePollenPresenters;
+        private readonly IDictionary<int, IBeeStoreNectarPresenter> beeStoreNectarPresenters;
         
         private readonly IBeePresenterFactory beePresenterFactory;
         private readonly IList<IFlowerPresenter> flowerPresenters;
@@ -32,7 +32,7 @@ namespace Domain.GameStates
             IList<Bee> beeList,
             IList<Flower> flowerList,
             IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters,
-            IDictionary<int, IBeeStorePollenPresenter> beeStorePollenPresenters,
+            IDictionary<int, IBeeStoreNectarPresenter> beeStoreNectarPresenters,
             IBeePresenterFactory beePresenterFactory,
             IList<IFlowerPresenter> flowerPresenters)
         {
@@ -40,7 +40,7 @@ namespace Domain.GameStates
             this.beeList = beeList;
             this.flowerList = flowerList;
             this.beeHarvestPresenters = beeHarvestPresenters;
-            this.beeStorePollenPresenters = beeStorePollenPresenters;
+            this.beeStoreNectarPresenters = beeStoreNectarPresenters;
             this.beePresenterFactory = beePresenterFactory;
             this.flowerPresenters = flowerPresenters;
         }
@@ -78,14 +78,14 @@ namespace Domain.GameStates
             
             var beeMoveController = await beePresenterFactory.CreateBeeMoveController(bee, GameOverToken);
             var beeHarvestPresenter = await beePresenterFactory.CreateBeeHarvestPresenter(bee, GameOverToken);
-            var beeStorePollenPresenter = await beePresenterFactory.CreateBeeStorePollenPresenter(bee, GameOverToken);
+            var beeStoreNectarPresenter = await beePresenterFactory.CreateBeeStoreNectarPresenter(bee, GameOverToken);
             
             beeMoveController.Initialize(bee);
             beeHarvestPresenters[bee.Id] = beeHarvestPresenter;
-            beeStorePollenPresenters[bee.Id] = beeStorePollenPresenter;
+            beeStoreNectarPresenters[bee.Id] = beeStoreNectarPresenter;
             
             HandleHarvest(bee, beeHarvestPresenter).Forget();
-            HandleStorePollen(bee, beeStorePollenPresenter).Forget();
+            HandleStoreNectar(bee, beeStoreNectarPresenter).Forget();
         }
 
         private async UniTaskVoid HandleHarvest(Bee bee, IBeeHarvestPresenter beeHarvestPresenter)
@@ -100,7 +100,7 @@ namespace Domain.GameStates
                     var harvested = flower.Harvest(bee.HarvestPower);
                     bee.Carry(harvested);
                     
-                    Console.WriteLine($"Bee-{bee.Id} harvested {harvested} pollen from Flower-{flower.Id}. Bee now has {bee.Pollen} pollen. Flower now has {flower.CurrentPollen} pollen.");
+                    Console.WriteLine($"Bee-{bee.Id} harvested {harvested} nectar from Flower-{flower.Id}. Bee now has {bee.Nectar} nectar. Flower now has {flower.CurrentNectar} nectar.");
                     
                     // TODO: present harvested animation
                     flowerPresenters[flower.Id].Show(flower.IsEmpty);
@@ -116,13 +116,13 @@ namespace Domain.GameStates
             HandleHarvest(bee, beeHarvestPresenter).Forget();
         }
         
-        private async UniTaskVoid HandleStorePollen(Bee bee, IBeeStorePollenPresenter beeStorePollenPresenter)
+        private async UniTaskVoid HandleStoreNectar(Bee bee, IBeeStoreNectarPresenter beeStoreNectarPresenter)
         {
-            if (bee.Pollen > 0)
+            if (bee.Nectar > 0)
             {
-                await beeStorePollenPresenter.WaitForStorePollen(GameOverToken);
-                game.CollectPollen(bee.Pollen);
-                bee.Pollen = 0;
+                await beeStoreNectarPresenter.WaitForStoreNectar(GameOverToken);
+                game.CollectNectar(bee.Nectar);
+                bee.Nectar = 0;
             }
             else
             {
@@ -130,7 +130,7 @@ namespace Domain.GameStates
             }
             
             if (cts == null || GameOverToken.IsCancellationRequested) return;
-            HandleStorePollen(bee, beeStorePollenPresenter).Forget();
+            HandleStoreNectar(bee, beeStoreNectarPresenter).Forget();
         }
 
         public void Dispose()

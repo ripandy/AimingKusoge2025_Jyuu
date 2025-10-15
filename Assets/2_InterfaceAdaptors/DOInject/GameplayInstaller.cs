@@ -36,7 +36,7 @@ namespace Kusoge.Installer
             // Presenters
             container.BindFromInstance<IBeePresenterFactory>(beePresenterFactory);
             container.BindFromInstance<IDictionary<int, IBeeHarvestPresenter>>(new Dictionary<int, IBeeHarvestPresenter>());
-            container.BindFromInstance<IDictionary<int, IBeeStorePollenPresenter>>(new Dictionary<int, IBeeStorePollenPresenter>());
+            container.BindFromInstance<IDictionary<int, IBeeStoreNectarPresenter>>(new Dictionary<int, IBeeStoreNectarPresenter>());
             container.BindFromInstance<IIntroPresenter>(introPresenter);
             container.BindFromInstance<IGameOverPresenter>(gameOverPresenter);
         }

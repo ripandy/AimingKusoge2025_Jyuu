@@ -39,16 +39,16 @@ namespace Kusoge.Gameplay
             return beeObject.GetComponent<BeeHarvestPresenter>();
         }
 
-        public async UniTask<IBeeStorePollenPresenter> CreateBeeStorePollenPresenter(Bee bee, CancellationToken cancellationToken = default)
+        public async UniTask<IBeeStoreNectarPresenter> CreateBeeStoreNectarPresenter(Bee bee, CancellationToken cancellationToken = default)
         {
             if (beeObjects.TryGetValue(bee.Id, out var beeObject))
-                return beeObject.GetComponent<IBeeStorePollenPresenter>();
+                return beeObject.GetComponent<IBeeStoreNectarPresenter>();
             
             var beeObjectResult = await InstantiateAsync(beePrefab, transform, spawnPoint.position, Quaternion.identity).ToUniTask(cancellationToken: cancellationToken);
             beeObject = beeObjectResult.First();
             beeObjects[bee.Id] = beeObject;
             
-            return beeObject.GetComponent<IBeeStorePollenPresenter>();
+            return beeObject.GetComponent<IBeeStoreNectarPresenter>();
         }
     }
 }
