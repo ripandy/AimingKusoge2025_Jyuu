@@ -9,6 +9,7 @@ namespace Domain.GameStates
     {
         private readonly IList<Bee> beeList;
         private readonly IList<Flower> flowerList;
+        private readonly IList<IFlowerPresenter> flowerPresenters;
         private readonly IIntroPresenter introPresenter;
         
         public GameStateEnum Id => GameStateEnum.Intro;
@@ -16,10 +17,12 @@ namespace Domain.GameStates
         public IntroGameState(
             IList<Bee> beeList,
             IList<Flower> flowerList,
+            IList<IFlowerPresenter> flowerPresenters,
             IIntroPresenter introPresenter)
         {
             this.beeList = beeList;
             this.flowerList = flowerList;
+            this.flowerPresenters = flowerPresenters;
             this.introPresenter = introPresenter;
         }
         
@@ -27,15 +30,13 @@ namespace Domain.GameStates
         {
             var showIntroTask = introPresenter.ShowAsync(cancellationToken);
             
-            foreach (var bee in beeList)
-            {
-                bee.Initialize();
-            }
+            beeList.Clear();
 
             for (var index = 0; index < flowerList.Count; index++)
             {
                 var flower = flowerList[index];
                 flower.Initialize(index);
+                flowerPresenters[flower.Id].Show(flower.IsEmpty);
             }
 
             await showIntroTask;

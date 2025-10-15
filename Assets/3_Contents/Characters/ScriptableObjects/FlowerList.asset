@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: FlowerList
   m_EditorClassIdentifier: InterfaceAdaptors::Contents.SOAR.FlowerList
   list:
-  - pollen: 5
-  - pollen: 2
-  - pollen: 8
-  - pollen: 20
+  - pollen: 10000
+  - pollen: 2000
+  - pollen: 500
+  - pollen: 800
+  - pollen: 200
   valueEventType: 0
   autoResetValue: 1

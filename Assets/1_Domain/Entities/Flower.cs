@@ -24,4 +24,9 @@ namespace Domain
             return harvested;
         }
     }
+    
+    public interface IFlowerPresenter
+    {
+        void Show(bool isEmpty);
+    }
 }

@@ -19,7 +19,7 @@ namespace Kusoge.Gameplay
         private Rigidbody2D beeBody;
         private Rigidbody2D BeeBody => beeBody ??= GetComponent<Rigidbody2D>();
 
-        private const float LaunchForce = 100f;
+        private const float LaunchForce = 50f;
         
         private float defaultScaleX;
         
@@ -30,7 +30,7 @@ namespace Kusoge.Gameplay
             Assert.IsFalse(BeeBody == null, $"[{GetType().Name}][{name}] Bee has no Rigidbody2D assigned.");
             
             moveInputSubscription = Observable
-                .EveryUpdate(destroyCancellationToken)
+                .EveryUpdate(UnityFrameProvider.FixedUpdate, destroyCancellationToken)
                 .Subscribe(_ => MoveBee(moveInput.Value));
         }
         
@@ -44,7 +44,8 @@ namespace Kusoge.Gameplay
 
         private void MoveBee(Vector2 moveVector)
         {
-            BeeBody.AddForce(moveVector * bee.MoveSpeed);
+            var force = moveVector * bee.MoveSpeed;
+            BeeBody.AddForce(force);
             
             if (moveVector.x == 0) return;
             

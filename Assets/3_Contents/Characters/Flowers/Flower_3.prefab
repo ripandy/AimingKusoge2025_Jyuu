@@ -60,6 +60,10 @@ PrefabInstance:
       propertyPath: m_Offset.y
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 2789579028059757845, guid: 790276dcdd22947bfa5c786ca7507423, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 2a4bf2cd30c534d529182f9995220992, type: 3}
     - target: {fileID: 4821339096540175357, guid: 790276dcdd22947bfa5c786ca7507423, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.56

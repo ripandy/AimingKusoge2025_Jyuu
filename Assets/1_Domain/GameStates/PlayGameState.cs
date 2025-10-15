@@ -18,6 +18,7 @@ namespace Domain.GameStates
         private readonly IDictionary<int, IBeeStorePollenPresenter> beeStorePollenPresenters;
         
         private readonly IBeePresenterFactory beePresenterFactory;
+        private readonly IList<IFlowerPresenter> flowerPresenters;
 
         public GameStateEnum Id => GameStateEnum.GamePlay;
 
@@ -32,7 +33,8 @@ namespace Domain.GameStates
             IList<Flower> flowerList,
             IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters,
             IDictionary<int, IBeeStorePollenPresenter> beeStorePollenPresenters,
-            IBeePresenterFactory beePresenterFactory)
+            IBeePresenterFactory beePresenterFactory,
+            IList<IFlowerPresenter> flowerPresenters)
         {
             this.game = game;
             this.beeList = beeList;
@@ -40,6 +42,7 @@ namespace Domain.GameStates
             this.beeHarvestPresenters = beeHarvestPresenters;
             this.beeStorePollenPresenters = beeStorePollenPresenters;
             this.beePresenterFactory = beePresenterFactory;
+            this.flowerPresenters = flowerPresenters;
         }
         
         public async UniTask<GameStateEnum> Running(CancellationToken cancellationToken = default)
@@ -70,6 +73,7 @@ namespace Domain.GameStates
         private async UniTaskVoid DeployBee()
         {
             var bee = new Bee(Bee.ID++);
+                bee.Initialize();
             beeList.Add(bee);
             
             var beeMoveController = await beePresenterFactory.CreateBeeMoveController(bee, GameOverToken);
@@ -96,7 +100,10 @@ namespace Domain.GameStates
                     var harvested = flower.Harvest(bee.HarvestPower);
                     bee.Carry(harvested);
                     
+                    Console.WriteLine($"Bee-{bee.Id} harvested {harvested} pollen from Flower-{flower.Id}. Bee now has {bee.Pollen} pollen. Flower now has {flower.CurrentPollen} pollen.");
+                    
                     // TODO: present harvested animation
+                    flowerPresenters[flower.Id].Show(flower.IsEmpty);
                     await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
                 }
             }

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GameJsonableVariable
   m_EditorClassIdentifier: InterfaceAdaptors::Contents.SOAR.GameJsonableVariable
   value:
+    level: 0
     maxBees: 10
     beeDeployDelay: 10
   valueEventType: 0
