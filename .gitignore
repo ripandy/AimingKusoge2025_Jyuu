@@ -80,3 +80,4 @@ crashlytics-build.properties
 .DS_Store
 Assets/Packages/*
 Assets/Packages.meta
+Assets/*.json*
