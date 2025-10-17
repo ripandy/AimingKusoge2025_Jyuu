@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Domain;
+using Kusoge.SOAR;
 using R3;
 using Soar.Variables;
 using UnityEngine;
@@ -11,10 +12,9 @@ namespace Kusoge.Gameplay
 {
     public class BeeMoveController : MonoBehaviour, IBeeMoveController
     {
+        [SerializeField] private BeeList beeList;
         [SerializeField] private Variable<Vector2> moveInput;
         [SerializeField] private Transform baseTransform;
-
-        private Bee bee;
         
         private Rigidbody2D beeBody;
         private Rigidbody2D BeeBody => beeBody ??= GetComponent<Rigidbody2D>();
@@ -22,6 +22,11 @@ namespace Kusoge.Gameplay
         private const float LaunchForce = 50f;
         
         private float defaultScaleX;
+        
+        private int beeId;
+        private float MoveSpeed => beeId < beeList.Count
+            ? beeList[beeId].MoveSpeed
+            : 0f;
         
         private IDisposable moveInputSubscription;
 
@@ -34,9 +39,9 @@ namespace Kusoge.Gameplay
                 .Subscribe(_ => MoveBee(moveInput.Value));
         }
         
-        public void Initialize(Bee beeRef)
+        public void Initialize(int id)
         {
-            bee = beeRef;
+            beeId = id;
             defaultScaleX = baseTransform.localScale.x;
             var launchVector = new Vector2(-1, Random.Range(-0.3f, 0.3f));
             MoveBee(launchVector * LaunchForce);
@@ -44,7 +49,7 @@ namespace Kusoge.Gameplay
 
         private void MoveBee(Vector2 moveVector)
         {
-            var force = moveVector * bee.MoveSpeed;
+            var force = moveVector * MoveSpeed;
             BeeBody.AddForce(force);
             
             if (moveVector.x == 0) return;

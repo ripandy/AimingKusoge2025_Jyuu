@@ -1,54 +1,60 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Domain;
 using Domain.Interfaces;
+using Kusoge.SOAR;
 using UnityEngine;
 
 namespace Kusoge.Gameplay
 {
     public class BeePresenterFactory : MonoBehaviour, IBeePresenterFactory
     {
+        [SerializeField] private BeeList beeList;
         [SerializeField] private GameObject beePrefab;
         [SerializeField] private Transform spawnPoint;
         
         private readonly IDictionary<int, GameObject> beeObjects = new Dictionary<int, GameObject>();
+        
+        private IDisposable subscription;
 
-        public async UniTask<IBeeMoveController> CreateBeeMoveController(Bee bee, CancellationToken cancellationToken = default)
+        private void Start()
         {
-            if (beeObjects.TryGetValue(bee.Id, out var beeObject))
-                return beeObject.GetComponent<BeeMoveController>();
-            
-            var beeObjectResult = await InstantiateAsync(beePrefab, transform, spawnPoint.position, Quaternion.identity).ToUniTask(cancellationToken: cancellationToken);
-            beeObject = beeObjectResult.First();
-            beeObjects[bee.Id] = beeObject;
-            
-            return beeObject.GetComponent<BeeMoveController>();
+            subscription = beeList.SubscribeOnClear(ClearBeeObjects);
         }
 
-        public async UniTask<IBeeHarvestPresenter> CreateBeeHarvestPresenter(Bee bee, CancellationToken cancellationToken = default)
+        private void ClearBeeObjects()
         {
-            if (beeObjects.TryGetValue(bee.Id, out var beeObject))
-                return beeObject.GetComponent<BeeHarvestPresenter>();
-            
-            var beeObjectResult = await InstantiateAsync(beePrefab, transform, spawnPoint.position, Quaternion.identity).ToUniTask(cancellationToken: cancellationToken);
-            beeObject = beeObjectResult.First();
-            beeObjects[bee.Id] = beeObject;
-            
-            return beeObject.GetComponent<BeeHarvestPresenter>();
+            foreach (var beeObject in beeObjects.Values.Where(beeObject => beeObject != null))
+            {
+                Destroy(beeObject);
+            }
+
+            beeObjects.Clear();
         }
 
-        public async UniTask<IBeeStoreNectarPresenter> CreateBeeStoreNectarPresenter(Bee bee, CancellationToken cancellationToken = default)
+        async UniTask<(IBeePresenter, IBeeMoveController, IBeeHarvestPresenter, IBeeStoreNectarPresenter)> IBeePresenterFactory.Create(int beeId, CancellationToken cancellationToken)
         {
-            if (beeObjects.TryGetValue(bee.Id, out var beeObject))
-                return beeObject.GetComponent<IBeeStoreNectarPresenter>();
+            if (!beeObjects.TryGetValue(beeId, out var beeObject))
+            {
+                var beeObjectResult = await InstantiateAsync(beePrefab, transform, spawnPoint.position, Quaternion.identity).ToUniTask(cancellationToken: cancellationToken);
+                beeObject = beeObjectResult.First();
+                beeObjects[beeId] = beeObject;
+            }
             
-            var beeObjectResult = await InstantiateAsync(beePrefab, transform, spawnPoint.position, Quaternion.identity).ToUniTask(cancellationToken: cancellationToken);
-            beeObject = beeObjectResult.First();
-            beeObjects[bee.Id] = beeObject;
-            
-            return beeObject.GetComponent<IBeeStoreNectarPresenter>();
+            var beePresenter = beeObject.GetComponent<BeePresenter>();
+            var beeMoveController = beeObject.GetComponent<BeeMoveController>();
+            var beeHarvestPresenter = beeObject.GetComponent<BeeHarvestPresenter>();
+            var beeStoreNectarPresenter = beeObject.GetComponent<BeeStoreNectarPresenter>();
+            return (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter);
+        }
+        
+        private void OnDestroy()
+        {
+            subscription?.Dispose();
+            ClearBeeObjects();
         }
     }
 }

@@ -9,14 +9,14 @@ namespace Kusoge.Gameplay
 {
     public class BeeHarvestPresenter : BeeTriggerAction, IBeeHarvestPresenter
     {
-        protected override string TargetTag =>　"Flower";
-        private readonly ReactiveProperty<int> flowerHarvested = new();
+        private readonly Subject<int> flowerHarvested = new();
         private int currentHarvestingIndex = -1;
         
         public UniTask<int> WaitForHarvest(CancellationToken cancellationToken = default)
         {
             actionRequested = true;
-            return flowerHarvested.LastAsync(cancellationToken).AsUniTask();
+            Debug.Log($"[{GetType().Name}][{name}] WaitForHarvest {actionRequested}");
+            return flowerHarvested.FirstAsync(cancellationToken).AsUniTask();
         }
         
         protected override void Initialize(Transform other)
@@ -29,8 +29,7 @@ namespace Kusoge.Gameplay
             var index = other.parent.GetSiblingIndex();
             Assert.AreEqual(index, currentHarvestingIndex, "Harvesting index doesn't match!");
             
-            Debug.Log($"Bee successfully harvested {other.tag} at index: {currentHarvestingIndex}");
-            flowerHarvested.Value = currentHarvestingIndex;
+            flowerHarvested.OnNext(currentHarvestingIndex);
         }
 
         protected override void Cleanup(Transform other)

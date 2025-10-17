@@ -16,7 +16,7 @@ namespace Domain
         public float NectarRate => (float)Nectar / Capacity;
         
         private float baseMoveSpeed;
-        public float MoveSpeed => baseMoveSpeed * (1f - NectarRate);
+        public float MoveSpeed => baseMoveSpeed * (1.2f - NectarRate);
         
         public bool IsFull => Nectar >= Capacity;
 
@@ -24,16 +24,8 @@ namespace Domain
         {
             Id = id;
             Nectar = 0;
-            Capacity = 100;
-            HarvestPower = 20;
-            baseMoveSpeed = 5f;
-        }
-        
-        internal void Initialize()
-        {
-            Nectar = 0;
-            Capacity = 1;
-            HarvestPower = 1;
+            Capacity = 10;
+            HarvestPower = 2;
             baseMoveSpeed = 5f;
         }
         
@@ -45,11 +37,21 @@ namespace Domain
             var carried = amount < canCarry ? amount : canCarry;
             Nectar = Math.Min(Capacity, Nectar + carried);
         }
+        
+        internal void StoreNectar()
+        {
+            Nectar = 0;
+        }
+    }
+
+    public interface IBeePresenter
+    {
+        void Show(int beeId);
     }
     
     public interface IBeeMoveController
     {
-        void Initialize(Bee bee);
+        void Initialize(int beeId);
     }
 
     public interface IBeeHarvestPresenter

@@ -2281,6 +2281,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f4e712dd118843bb90a05d8008bbe39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: InterfaceAdaptors::GameplayInstaller
+  beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
   flowerList: {fileID: 11400000, guid: 2109ccf4c9b0a428b9ea4b2ef839575d, type: 2}
   gameJsonableVariable: {fileID: 11400000, guid: 8796b9d4c99c84f4aa70c93517f3330d, type: 2}
   beePresenterFactory: {fileID: 2088594441}
@@ -3879,6 +3880,10 @@ PrefabInstance:
     - target: {fileID: 6178766327419401037, guid: da0c7b9d5f9a647ad9d4ac8589c2a33a, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8201393610978088245, guid: da0c7b9d5f9a647ad9d4ac8589c2a33a, type: 3}
+      propertyPath: m_DrawMode
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

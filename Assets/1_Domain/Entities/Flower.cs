@@ -20,13 +20,13 @@ namespace Domain
         internal int Harvest(int amount)
         {
             var harvested = amount < CurrentNectar ? amount : CurrentNectar;
-            CurrentNectar = Math.Max(0, CurrentNectar - harvested);
+            CurrentNectar -= harvested;
             return harvested;
         }
     }
     
     public interface IFlowerPresenter
     {
-        void Show(bool isEmpty);
+        void Show(int nectar, int maxNectar);
     }
 }

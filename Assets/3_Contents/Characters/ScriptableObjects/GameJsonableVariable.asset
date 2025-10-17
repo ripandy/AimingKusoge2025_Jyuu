@@ -16,5 +16,5 @@ MonoBehaviour:
     level: 0
     maxBees: 10
     beeDeployDelay: 10
-  valueEventType: 0
-  autoResetValue: 1
+  valueEventType: 1
+  autoResetValue: 0

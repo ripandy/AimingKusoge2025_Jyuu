@@ -30,4 +30,9 @@ namespace Domain
             return false;
         }
     }
+
+    public interface IGamePresenter
+    {
+        void Show(Game game);
+    }
 }
