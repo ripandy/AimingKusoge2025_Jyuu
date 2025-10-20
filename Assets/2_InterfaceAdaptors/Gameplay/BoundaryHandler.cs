@@ -6,7 +6,11 @@ namespace Kusoge.Gameplay
 {
     public class BoundaryHandler : MonoBehaviour
     {
-        [SerializeField] private Vector2 horizontalBoundaries = new(-10f, 10f);
+        [Header("Boundaries")]
+        [SerializeField] private float left = -10f;
+        [SerializeField] private float right = 10f;
+        [SerializeField] private float top = 5f;
+        [SerializeField] private float bottom = -5f;
         
         private IDisposable subscription;
 
@@ -20,13 +24,19 @@ namespace Kusoge.Gameplay
         {
             var position = transform.position;
 
-            if (position.x < horizontalBoundaries.x)
+            if (position.x < left)
             {
-                position.x = horizontalBoundaries.y;
+                position.x = right;
             }
-            else if (position.x > horizontalBoundaries.y)
+            else if (position.x > right)
             {
-                position.x = horizontalBoundaries.x;
+                position.x = left;
+            }
+
+            // wrap top to bottom only. do not check bottom due to bounce.
+            if (position.y > top)
+            {
+                position.y = bottom;
             }
 
             transform.position = position;

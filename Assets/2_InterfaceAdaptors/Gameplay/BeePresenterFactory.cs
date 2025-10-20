@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -17,15 +16,8 @@ namespace Kusoge.Gameplay
         [SerializeField] private Transform spawnPoint;
         
         private readonly IDictionary<int, GameObject> beeObjects = new Dictionary<int, GameObject>();
-        
-        private IDisposable subscription;
 
-        private void Start()
-        {
-            subscription = beeList.SubscribeOnClear(ClearBeeObjects);
-        }
-
-        private void ClearBeeObjects()
+        public void Clear()
         {
             foreach (var beeObject in beeObjects.Values.Where(beeObject => beeObject != null))
             {
@@ -49,12 +41,6 @@ namespace Kusoge.Gameplay
             var beeHarvestPresenter = beeObject.GetComponent<BeeHarvestPresenter>();
             var beeStoreNectarPresenter = beeObject.GetComponent<BeeStoreNectarPresenter>();
             return (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter);
-        }
-        
-        private void OnDestroy()
-        {
-            subscription?.Dispose();
-            ClearBeeObjects();
         }
     }
 }

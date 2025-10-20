@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4141c55011b048f19c15fd81f5b61e2d, type: 3}
-  m_Name: Vector2InputVariable
-  m_EditorClassIdentifier: SoarExtensions::DefaultNamespace.Vector2InputVariable
-  value: {x: 0, y: 0}
+  m_Script: {fileID: 11500000, guid: 6b0b01dd0acd4a539efebf7ee4c7b168, type: 3}
+  m_Name: FlapInputVariable
+  m_EditorClassIdentifier: SoarExtensions::Feature.Extension.ButtonInputVariable
+  value: 0
   valueEventType: 0
   autoResetValue: 1
   eventRaisePhase: 6

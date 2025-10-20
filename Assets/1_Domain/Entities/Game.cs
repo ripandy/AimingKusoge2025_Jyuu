@@ -1,17 +1,16 @@
 using System;
+using UnityEngine;
 
 namespace Domain
 {
     [Serializable]
     public struct Game
     {
-        // game data
-        public int level;
-        
-        // Bee settings
-        public int maxBees;
-        public int beeDeployDelay;
+        [SerializeField] internal int level;
+        [SerializeField] internal int beeDeployDelay;
+        [SerializeField] internal float nectarWeight;
 
+        public float NectarWeight => nectarWeight;
         public int CollectedNectar { get; internal set; }
         public string DisplayLevel => level.ToString("D2");
         

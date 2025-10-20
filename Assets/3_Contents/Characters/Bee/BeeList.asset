@@ -12,6 +12,56 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2665cc6138e403ab4627dd4d5aa12f8, type: 3}
   m_Name: BeeList
   m_EditorClassIdentifier: InterfaceAdaptors::Contents.SOAR.BeeList
-  list: []
+  list:
+  - capacity: 3
+    harvestPower: 1
+    baseWeight: 0.8
+    moveForce: 8.5
+    flapForce: 1
+  - capacity: 10
+    harvestPower: 2
+    baseWeight: 1.5
+    moveForce: 5
+    flapForce: 3
+  - capacity: 1
+    harvestPower: 1
+    baseWeight: 0.5
+    moveForce: 9.5
+    flapForce: 1
+  - capacity: 20
+    harvestPower: 4
+    baseWeight: 2.5
+    moveForce: 10
+    flapForce: 5
+  - capacity: 15
+    harvestPower: 3
+    baseWeight: 2
+    moveForce: 7.5
+    flapForce: 3
+  - capacity: 5
+    harvestPower: 1
+    baseWeight: 1
+    moveForce: 7.5
+    flapForce: 2
+  - capacity: 8
+    harvestPower: 2
+    baseWeight: 1.3
+    moveForce: 6
+    flapForce: 2
+  - capacity: 16
+    harvestPower: 4
+    baseWeight: 2.1
+    moveForce: 8
+    flapForce: 4
+  - capacity: 12
+    harvestPower: 3
+    baseWeight: 1.7
+    moveForce: 6
+    flapForce: 3
+  - capacity: 18
+    harvestPower: 4
+    baseWeight: 2.3
+    moveForce: 9
+    flapForce: 4
   valueEventType: 0
-  autoResetValue: 1
+  autoResetValue: 0

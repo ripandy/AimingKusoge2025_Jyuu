@@ -28,6 +28,7 @@ namespace Domain.GameStates
         private CancellationTokenSource cts;
         private CancellationToken GameOverToken => cts.Token;
 
+        private UniTaskCompletionSource<bool> firstStorageCompletionSource;
         private UniTaskCompletionSource<bool> gameCompletionSource;
 
         public PlayGameState(
@@ -56,9 +57,15 @@ namespace Domain.GameStates
         {
             cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             gameCompletionSource = new UniTaskCompletionSource<bool>();
+            firstStorageCompletionSource = new UniTaskCompletionSource<bool>();
             
-            // NOTE: due to Game being a struct, the changes from other state is not reflected.
+            // NOTE: due to Game being a struct, the initialization from intro state is not reflected here. Hence, re-initialize.
             game.Initialize();
+            gamePresenter.Show(game);
+            
+            DeployBee().Forget();
+            
+            // await firstStorageCompletionSource.Task;
             
             HandleBeeDeployment().Forget();
 
@@ -70,10 +77,10 @@ namespace Domain.GameStates
 
         private async UniTaskVoid HandleBeeDeployment()
         {
-            if (beeList.Count < game.maxBees)
-                DeployBee().Forget();
-            
             await UniTask.Delay(TimeSpan.FromSeconds(game.beeDeployDelay), cancellationToken: GameOverToken).SuppressCancellationThrow();
+            
+            if (beePresenters.Count < beeList.Count)
+                DeployBee().Forget();
             
             if (cts == null || GameOverToken.IsCancellationRequested) return;
             
@@ -82,8 +89,9 @@ namespace Domain.GameStates
 
         private async UniTaskVoid DeployBee()
         {
-            var bee = new Bee(Bee.ID++);
-            beeList.Add(bee);
+            var bee = beeList[Bee.ID];
+            bee.Id = Bee.ID;
+            beeList[Bee.ID++] = bee;
             Debug.Log($"[{GetType().Name}] Bee deployed. id={bee.Id}");
 
             var (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter) =
@@ -111,13 +119,13 @@ namespace Domain.GameStates
                 var bee = beeList[beeId];
                 if (!flower.IsEmpty)
                 {
-                    var harvested = flower.Harvest(bee.HarvestPower);
+                    var harvested = flower.Harvest(bee.harvestPower);
                     bee.Carry(harvested);
                     
                     beeList[bee.Id] = bee;
                     flowerList[flower.Id] = flower;
                     
-                    Debug.Log($"[{GetType().Name}] Bee {bee.Id} harvested {harvested} from Flower {flower.Id}. Bee nectar={bee.Nectar}/{bee.Capacity}, Flower nectar={flower.CurrentNectar}/{flower.nectar}");
+                    Debug.Log($"[{GetType().Name}] Bee {bee.Id} harvested {harvested} from Flower {flower.Id}. Bee nectar={bee.Nectar}/{bee.capacity}, Flower nectar={flower.CurrentNectar}/{flower.nectar}");
                     
                     beePresenters[bee.Id].Show(bee.Id);
                     flowerPresenters[flower.Id].Show(flower.CurrentNectar, flower.nectar);
@@ -137,19 +145,21 @@ namespace Domain.GameStates
         
         private async UniTaskVoid HandleStoreNectar(int beeId, IBeeStoreNectarPresenter beeStoreNectarPresenter)
         {
-            // var bee = beeList[beeId];
             if (beeList[beeId].Nectar > 0)
             {
                 await beeStoreNectarPresenter.WaitForStoreNectar(GameOverToken);
                 
                 var bee = beeList[beeId];
-                game.CollectNectar(bee.Nectar);
-                bee.StoreNectar();
+                var storeAmount = bee.StoreNectar();
+                game.CollectNectar(storeAmount);
                 beeList[bee.Id] = bee;
                 
                 gamePresenter.Show(game);
                 beePresenters[bee.Id].Show(bee.Id);
                 Debug.Log($"[{GetType().Name}] Bee {bee.Id} stored nectar. Total nectar={game.CollectedNectar}");
+                
+                if (firstStorageCompletionSource.Task.Status == UniTaskStatus.Pending) 
+                    firstStorageCompletionSource.TrySetResult(true);
             }
             else
             {

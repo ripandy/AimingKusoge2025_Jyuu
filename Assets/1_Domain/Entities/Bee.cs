@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace Domain
 {
@@ -9,38 +10,47 @@ namespace Domain
     {
         internal static int ID;
         
-        public int Id { get; }
+        [Header("Attributes")]
+        [SerializeField] internal int capacity;
+        [SerializeField] internal int harvestPower;
+        
+        [Header("Physics")]
+        [SerializeField] internal float baseWeight;
+        [SerializeField] private float moveForce;
+        [SerializeField] private float flapForce;
+        
+        public int Id { get; internal set; }
+        
+        public int Capacity => capacity;
+        public float BaseWeight => baseWeight;
         public int Nectar { get; internal set; }
-        public int Capacity { get; internal set; }
-        public int HarvestPower { get; internal set; }
-        public float NectarRate => (float)Nectar / Capacity;
+        public float NectarRate => (float)Nectar / capacity;
+        public bool IsFull => Nectar >= capacity;
         
-        private float baseMoveSpeed;
-        public float MoveSpeed => baseMoveSpeed * (1.2f - NectarRate);
-        
-        public bool IsFull => Nectar >= Capacity;
+        // physics
+        public float MoveForce => moveForce;
+        public float FlapForce => flapForce;
 
-        internal Bee(int id)
+        internal void Initialize()
         {
-            Id = id;
             Nectar = 0;
-            Capacity = 10;
-            HarvestPower = 2;
-            baseMoveSpeed = 5f;
         }
         
         internal void Carry(int amount)
         {
-            var canCarry = Capacity - Nectar;
+            var canCarry = capacity - Nectar;
             if (canCarry <= 0) return;
             
             var carried = amount < canCarry ? amount : canCarry;
-            Nectar = Math.Min(Capacity, Nectar + carried);
+            Nectar = Math.Min(capacity, Nectar + carried);
         }
         
-        internal void StoreNectar()
+        internal int StoreNectar()
         {
-            Nectar = 0;
+            if (Nectar <= 0) return 0;
+            var stored = Nectar < harvestPower ? Nectar : harvestPower;
+            Nectar -= stored;
+            return stored;
         }
     }
 

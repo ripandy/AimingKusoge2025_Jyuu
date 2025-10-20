@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: InterfaceAdaptors::Contents.SOAR.GameJsonableVariable
   value:
     level: 0
-    maxBees: 10
-    beeDeployDelay: 10
+    beeDeployDelay: 1
+    nectarWeight: 0.1
   valueEventType: 1
   autoResetValue: 0

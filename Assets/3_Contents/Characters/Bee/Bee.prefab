@@ -645,10 +645,10 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDamping: 0.25
-  m_AngularDamping: 0.1
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
+  m_LinearDamping: 0.5
+  m_AngularDamping: 1
+  m_GravityScale: 0.1
+  m_Material: {fileID: 6200000, guid: d18e2adec00a94ec4abf288e9c4e3232, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -657,7 +657,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!114 &7695505837359706220
 MonoBehaviour:
@@ -672,9 +672,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeePresenter
   beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
-  beeBody: {fileID: 3864291225567529804}
   nectarText: {fileID: 6215002797818576722}
-  gravityScale: 0.1
 --- !u!114 &5524726687753994266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -687,9 +685,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ddbb4dce61164b40a68ee69bf61a115, type: 3}
   m_Name: 
   m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Controller.BeeMoveController
+  gameData: {fileID: 11400000, guid: 8796b9d4c99c84f4aa70c93517f3330d, type: 2}
   beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
   moveInput: {fileID: 11400000, guid: 65161611ae4d54aa0961a4d296b314c4, type: 2}
+  flapInput: {fileID: 11400000, guid: bec10f214a6984206849247363bb935b, type: 2}
   baseTransform: {fileID: 5462987590425309985}
+  beeBody: {fileID: 3864291225567529804}
 --- !u!114 &1713933332108565806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -732,7 +733,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75a37dfc53384fbea069d2732b580708, type: 3}
   m_Name: 
   m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BoundaryHandler
-  horizontalBoundaries: {x: -11, y: 11}
+  left: -10
+  right: 10
+  top: 7.5
+  bottom: -2.5
 --- !u!1 &9136089861212585374
 GameObject:
   m_ObjectHideFlags: 0

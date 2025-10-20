@@ -8,7 +8,6 @@ namespace Kusoge.Gameplay
     public class BeePresenter : MonoBehaviour, IBeePresenter
     {
         [SerializeField] private BeeList beeList;
-        [SerializeField] private Rigidbody2D beeBody;
         [SerializeField] private TMP_Text nectarText;
         
         public void Show(int beeId)

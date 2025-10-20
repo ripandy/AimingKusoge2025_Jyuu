@@ -29,6 +29,7 @@ namespace Kusoge.Gameplay
             var index = other.parent.GetSiblingIndex();
             Assert.AreEqual(index, currentHarvestingIndex, "Harvesting index doesn't match!");
             
+            if (currentHarvestingIndex == -1) return;
             flowerHarvested.OnNext(currentHarvestingIndex);
         }
 
