@@ -43,6 +43,7 @@ namespace Kusoge.Installer
             container.BindFromInstance<IDictionary<int, IBeePresenter>>(new Dictionary<int, IBeePresenter>());
             container.BindFromInstance<IDictionary<int, IBeeHarvestPresenter>>(new Dictionary<int, IBeeHarvestPresenter>());
             container.BindFromInstance<IDictionary<int, IBeeStoreNectarPresenter>>(new Dictionary<int, IBeeStoreNectarPresenter>());
+            container.BindFromInstance<IDictionary<int, IBeeAudioPresenter>>(new Dictionary<int, IBeeAudioPresenter>());
             container.BindFromInstance<IIntroPresenter>(introPresenter);
             container.BindFromInstance<IGameOverPresenter>(gameOverPresenter);
         }

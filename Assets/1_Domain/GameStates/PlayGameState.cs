@@ -19,7 +19,8 @@ namespace Domain.GameStates
         private readonly IDictionary<int, IBeePresenter> beePresenters;
         private readonly IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters;
         private readonly IDictionary<int, IBeeStoreNectarPresenter> beeStoreNectarPresenters;
-        
+        private readonly IDictionary<int, IBeeAudioPresenter> beeAudioPresenters;
+
         private readonly IBeePresenterFactory beePresenterFactory;
         private readonly IList<IFlowerPresenter> flowerPresenters;
 
@@ -39,6 +40,7 @@ namespace Domain.GameStates
             IDictionary<int, IBeePresenter> beePresenters,
             IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters,
             IDictionary<int, IBeeStoreNectarPresenter> beeStoreNectarPresenters,
+            IDictionary<int, IBeeAudioPresenter> beeAudioPresenters,
             IBeePresenterFactory beePresenterFactory,
             IList<IFlowerPresenter> flowerPresenters)
         {
@@ -49,6 +51,7 @@ namespace Domain.GameStates
             this.beePresenters = beePresenters;
             this.beeHarvestPresenters = beeHarvestPresenters;
             this.beeStoreNectarPresenters = beeStoreNectarPresenters;
+            this.beeAudioPresenters = beeAudioPresenters;
             this.beePresenterFactory = beePresenterFactory;
             this.flowerPresenters = flowerPresenters;
         }
@@ -94,15 +97,27 @@ namespace Domain.GameStates
             beeList[Bee.ID++] = bee;
             Debug.Log($"[{GetType().Name}] Bee deployed. id={bee.Id}");
 
-            var (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter) =
+            var (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter, beeAudioPresenter) =
                 await beePresenterFactory.Create(bee.Id, GameOverToken);
             
             beePresenter.Show(bee.Id);
             beeMoveController.Initialize(bee.Id);
+
+            var deployAudio = bee.Id == 0
+                ? BeeAudioEnum.Mitsuda //BeeAudioEnum.OnakaSuita
+                : (bee.Id % 5) switch
+                {
+                    1 => BeeAudioEnum.Mitsuda,
+                    2 or 3 => BeeAudioEnum.Hoshii,
+                    _ => BeeAudioEnum.Watashimo
+                };
+
+            beeAudioPresenter.Play(deployAudio);
             
             beePresenters[bee.Id] = beePresenter;
             beeHarvestPresenters[bee.Id] = beeHarvestPresenter;
             beeStoreNectarPresenters[bee.Id] = beeStoreNectarPresenter;
+            beeAudioPresenters[bee.Id] = beeAudioPresenter;
             
             HandleHarvest(bee.Id, beeHarvestPresenter).Forget();
             HandleStoreNectar(bee.Id, beeStoreNectarPresenter).Forget();

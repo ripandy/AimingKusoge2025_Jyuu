@@ -27,7 +27,7 @@ namespace Kusoge.Gameplay
             beeObjects.Clear();
         }
 
-        async UniTask<(IBeePresenter, IBeeMoveController, IBeeHarvestPresenter, IBeeStoreNectarPresenter)> IBeePresenterFactory.Create(int beeId, CancellationToken cancellationToken)
+        async UniTask<(IBeePresenter, IBeeMoveController, IBeeHarvestPresenter, IBeeStoreNectarPresenter, IBeeAudioPresenter)> IBeePresenterFactory.Create(int beeId, CancellationToken cancellationToken)
         {
             if (!beeObjects.TryGetValue(beeId, out var beeObject))
             {
@@ -40,7 +40,8 @@ namespace Kusoge.Gameplay
             var beeMoveController = beeObject.GetComponent<BeeMoveController>();
             var beeHarvestPresenter = beeObject.GetComponent<BeeHarvestPresenter>();
             var beeStoreNectarPresenter = beeObject.GetComponent<BeeStoreNectarPresenter>();
-            return (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter);
+            var beeAudioPresenter = beeObject.GetComponent<BeeAudioPresenter>();
+            return (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter, beeAudioPresenter);
         }
     }
 }
