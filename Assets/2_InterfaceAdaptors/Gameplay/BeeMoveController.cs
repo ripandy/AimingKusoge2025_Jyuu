@@ -25,8 +25,8 @@ namespace Kusoge.Gameplay
 
         private float moveForce = 5f;
         private Vector2 flapForce = new(0, 5f);
-        
         private Vector3 defaultBeeScale;
+        private bool isMoving;
         private bool isRecoveringRotation;
         
         private IDisposable subscriptions;
@@ -45,6 +45,7 @@ namespace Kusoge.Gameplay
                 .EveryUpdate(UnityFrameProvider.FixedUpdate, destroyCancellationToken)
                 .Subscribe(_ =>
                 {
+                    isMoving = moveInput.Value.magnitude > 0.01f;
                     MoveBee(moveInput.Value, ForceMode2D.Force);
                     RecoverRotationAttempt().Forget();
                 });
@@ -55,6 +56,7 @@ namespace Kusoge.Gameplay
             // initial launch
             var launchVector = new Vector2(-1, Random.Range(-0.3f, 0.3f));
             MoveBee(launchVector * beeList[beeId].FlapForce, ForceMode2D.Impulse);
+            IdleFloating().Forget();
             
             void UpdateBeePhysics(Bee bee)
             {
@@ -125,12 +127,28 @@ namespace Kusoge.Gameplay
             BeeBody.MoveRotation(targetRotation);
             isRecoveringRotation = false;
         }
+
+        private async UniTaskVoid IdleFloating()
+        {
+            while (!destroyCancellationToken.IsCancellationRequested)
+            {
+                if (!isMoving)
+                {
+                    var floatForce = Vector2.up * beeList[beeId].BaseWeight * BeeBody.gravityScale;
+                    MoveBee(floatForce, ForceMode2D.Impulse);
+                }
+
+                const float rndRange = 0.4f;
+                var delay = 1f + rndRange * 0.5f - Random.value * rndRange;
+                await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: destroyCancellationToken);
+            }
+        }
         
         private void OnCollisionEnter2D(Collision2D other)
         {
             if (!other.gameObject.CompareTag("Bounds")) return;
             var normal = other.contacts.First().normal;
-            MoveBee(normal * BeeBody.mass * 0.6f, ForceMode2D.Impulse);
+            MoveBee(normal * BeeBody.mass * 0.5f, ForceMode2D.Impulse);
         }
 
         private void OnDestroy()
