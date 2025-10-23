@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab385f1d547164b8aae31f938ec3a0e9, type: 3}
+  m_Name: BeeAudio_Yatta
+  m_EditorClassIdentifier: Soar.Base::Soar.Collections.AudioClipList
+  list:
+  - {fileID: 8300000, guid: 327d166454bd34186815b86861854a2a, type: 3}
+  - {fileID: 8300000, guid: 3e71d090fd049497dbb9f78b34d2e205, type: 3}
+  - {fileID: 8300000, guid: b0725a33a657b4c1f8b506888c6dbc7b, type: 3}
+  - {fileID: 8300000, guid: ee7fe3303ca944eb29e64c2e4140185e, type: 3}
+  - {fileID: 8300000, guid: 1c721dd5a3540405fbd7f53f56d27c41, type: 3}
+  - {fileID: 8300000, guid: d36bef86c9704418da3ad94531fdcdac, type: 3}
+  - {fileID: 8300000, guid: a806e21eb8fba488089b3133e2a70928, type: 3}
+  - {fileID: 8300000, guid: a70fb398aff2e46caa20dd7cca121981, type: 3}
+  - {fileID: 8300000, guid: 28015cbd73bb643c1a4d95f8651a3ed3, type: 3}
+  - {fileID: 8300000, guid: 8ee3fdc50e7e043e280396d3344d2d42, type: 3}
+  - {fileID: 8300000, guid: 11d6733b5849d41999537a42fc8f8fb5, type: 3}
+  - {fileID: 8300000, guid: 29f54412f4d2041f79a15cc23a94ebf0, type: 3}
+  - {fileID: 8300000, guid: aa2c216eb9d0744859713ea9bc80470e, type: 3}
+  - {fileID: 8300000, guid: e281979ef86b841219fbdd6d9effcc0e, type: 3}
+  - {fileID: 8300000, guid: e05922b5632754bd39c3fc07948ad218, type: 3}
+  valueEventType: 0
+  autoResetValue: 0
