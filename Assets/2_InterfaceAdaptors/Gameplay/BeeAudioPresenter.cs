@@ -12,9 +12,10 @@ namespace Kusoge.Gameplay
     {
         [SerializeField] private SerializedKeyValuePair<BeeAudioEnum, SoarList<AudioClip>>[] beeAudioKeyValuePair;
         [SerializeField] private AudioSource audioSource;
+        [SerializeField] private GameObject eyesClosedObject;
         [SerializeField] private float cooldown = 10f;
         
-        private AudioSource AudioSource => audioSource ??= GetComponent<AudioSource>();
+        private AudioSource AudioSource => audioSource ??= GetComponentInChildren<AudioSource>();
         
         private float cooldownTimer;
         
@@ -31,6 +32,10 @@ namespace Kusoge.Gameplay
             AudioSource.PlayOneShot(audioList[randomIndex]);
             
             Cooldown().Forget();
+
+            if (beeAudio != BeeAudioEnum.Itai) return;
+            
+            CloseEyes().Forget();
         }
 
         private async UniTaskVoid Cooldown()
@@ -42,6 +47,14 @@ namespace Kusoge.Gameplay
                 await UniTask.Yield(destroyCancellationToken);
             }
             cooldownTimer = 0f;
+        }
+        
+        private async UniTaskVoid CloseEyes()
+        {
+            const float closeDuration = 3f;
+            eyesClosedObject.SetActive(true);
+            await UniTask.Delay(System.TimeSpan.FromSeconds(closeDuration), cancellationToken: destroyCancellationToken);
+            eyesClosedObject.SetActive(false);
         }
         
         private void OnCollisionEnter2D(Collision2D other)

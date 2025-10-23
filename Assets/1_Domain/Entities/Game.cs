@@ -9,14 +9,19 @@ namespace Domain
         [SerializeField] internal int level;
         [SerializeField] internal int beeDeployDelay;
         [SerializeField] internal float nectarWeight;
+        [SerializeField] internal int[] targetNectar;
 
-        public float NectarWeight => nectarWeight;
         public int CollectedNectar { get; internal set; }
+        // public int TargetNectar => targetNectar[level];
+        public int TargetNectar { get; internal set; }
+        
+        public float NectarWeight => nectarWeight;
         public string DisplayLevel => level.ToString("D2");
         
         internal void Initialize()
         {
             CollectedNectar = 0;
+            TargetNectar = 3;
         }
 
         internal void CollectNectar(int amount)

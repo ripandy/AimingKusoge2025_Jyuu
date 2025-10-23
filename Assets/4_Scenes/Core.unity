@@ -1027,6 +1027,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4202173803657766733, guid: 75e07d90d019b4986b1f4470e63b56ba, type: 3}
+      propertyPath: nextState
+      value: Gameplay
+      objectReference: {fileID: 0}
     - target: {fileID: 4661209064216967701, guid: 75e07d90d019b4986b1f4470e63b56ba, type: 3}
       propertyPath: m_Name
       value: PyrasLabSplashScreen

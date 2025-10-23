@@ -108,7 +108,7 @@ namespace Domain.GameStates
                 : (bee.Id % 5) switch
                 {
                     1 => BeeAudioEnum.Mitsuda,
-                    2 or 3 => BeeAudioEnum.Hoshii,
+                    2 => BeeAudioEnum.Hoshii,
                     _ => BeeAudioEnum.Watashimo
                 };
 
@@ -173,7 +173,7 @@ namespace Domain.GameStates
                 beePresenters[bee.Id].Show(bee.Id);
                 Debug.Log($"[{GetType().Name}] Bee {bee.Id} stored nectar. Total nectar={game.CollectedNectar}");
                 
-                if (firstStorageCompletionSource.Task.Status == UniTaskStatus.Pending) 
+                if (firstStorageCompletionSource.Task.Status == UniTaskStatus.Pending && game.CollectedNectar >= 2)
                     firstStorageCompletionSource.TrySetResult(true);
             }
             else

@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: InterfaceAdaptors::Contents.SOAR.FlowerList
   list:
   - nectar: 100
+  - nectar: 60
+  - nectar: 30
   - nectar: 40
-  - nectar: 24
-  - nectar: 32
-  - nectar: 16
+  - nectar: 20
   valueEventType: 0
   autoResetValue: 0

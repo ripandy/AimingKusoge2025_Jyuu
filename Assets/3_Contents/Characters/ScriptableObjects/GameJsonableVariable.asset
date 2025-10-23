@@ -16,5 +16,6 @@ MonoBehaviour:
     level: 0
     beeDeployDelay: 1
     nectarWeight: 0.1
+    targetNectar: 
   valueEventType: 1
   autoResetValue: 0

@@ -54,14 +54,14 @@ namespace Kusoge.Gameplay
             subscriptions = Disposable.Combine(s1, s2, s3);
             
             // initial launch
-            var launchVector = new Vector2(-1, Random.Range(-0.3f, 0.3f));
-            MoveBee(launchVector * beeList[beeId].FlapForce, ForceMode2D.Impulse);
+            var launchVector = Vector2.left * Mathf.Sin(Mathf.Deg2Rad * Random.Range(-30f, 30f));
+            MoveBee(launchVector * beeList[beeId].BaseWeight, ForceMode2D.Impulse);
             IdleFloating().Forget();
             
             void UpdateBeePhysics(Bee bee)
             {
                 moveForce = bee.MoveForce;
-                flapForce = new Vector2(0f, bee.FlapForce);
+                flapForce = Vector2.up * beeList[beeId].BaseWeight * BeeBody.gravityScale;
                 BeeBody.mass = bee.BaseWeight + bee.Nectar * gameData.Value.NectarWeight;
                 
                 var scale = defaultBeeScale * BeeBody.mass;
@@ -132,7 +132,7 @@ namespace Kusoge.Gameplay
         {
             while (!destroyCancellationToken.IsCancellationRequested)
             {
-                if (!isMoving)
+                if (!isMoving && gameData.Value.CollectedNectar >= 2)
                 {
                     var floatForce = Vector2.up * beeList[beeId].BaseWeight * BeeBody.gravityScale;
                     MoveBee(floatForce, ForceMode2D.Impulse);

@@ -18,7 +18,7 @@ namespace Kusoge.Gameplay
         protected abstract void ExecuteAction(Transform other);
         protected abstract void Cleanup(Transform other);
 
-        private void Start()
+        protected virtual void Start()
         {
             Observable.EveryValueChanged(this, _ => elapsedTime)
                 .Where(_ => progress != null)

@@ -29,7 +29,6 @@ namespace Domain
         
         // physics
         public float MoveForce => moveForce;
-        public float FlapForce => flapForce;
 
         internal void Initialize()
         {
