@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab385f1d547164b8aae31f938ec3a0e9, type: 3}
+  m_Name: BeeAudio_Pyon
+  m_EditorClassIdentifier: Soar.Base::Soar.Collections.AudioClipList
+  list:
+  - {fileID: 8300000, guid: 6cbb8304048ee44dbb9e4ab4cc4b14a6, type: 3}
+  - {fileID: 8300000, guid: 0f449b9ef931e4c6cb42839c9c69ef41, type: 3}
+  - {fileID: 8300000, guid: 91ede5c1e977f4e3987637059185bc77, type: 3}
+  valueEventType: 0
+  autoResetValue: 0
