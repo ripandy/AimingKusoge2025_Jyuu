@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Domain.Interfaces;
@@ -7,10 +8,10 @@ namespace Kusoge.Gameplay
 {
     public class IntroPresenter : MonoBehaviour, IIntroPresenter
     {
-        public UniTask ShowAsync(CancellationToken cancellationToken = default)
+        public async UniTask ShowAsync(CancellationToken cancellationToken = default)
         {
             Debug.Log($"[{GetType().Name}][{name}] Show...");
-            return UniTask.CompletedTask;
+            await UniTask.Delay(TimeSpan.FromSeconds(3), cancellationToken: cancellationToken);
         }
     }
 }
