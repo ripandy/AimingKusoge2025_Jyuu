@@ -68,7 +68,7 @@ namespace Domain.GameStates
             
             DeployBee().Forget();
             
-            // await firstStorageCompletionSource.Task;
+            await firstStorageCompletionSource.Task;
             
             HandleBeeDeployment().Forget();
 
