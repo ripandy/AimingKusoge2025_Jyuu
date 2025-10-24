@@ -54,8 +54,8 @@ namespace Kusoge.Gameplay
             subscriptions = Disposable.Combine(s1, s2, s3);
             
             // initial launch
-            var launchVector = Vector2.left * Mathf.Sin(Mathf.Deg2Rad * Random.Range(-30f, 30f));
-            MoveBee(launchVector * beeList[beeId].BaseWeight, ForceMode2D.Impulse);
+            var launchVector = new Vector2(-1, Random.Range(-0.3f, 0.3f));
+            MoveBee(launchVector, ForceMode2D.Impulse);
             IdleFloating().Forget();
             
             void UpdateBeePhysics(Bee bee)

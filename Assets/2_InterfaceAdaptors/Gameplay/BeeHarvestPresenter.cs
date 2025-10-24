@@ -53,8 +53,11 @@ namespace Kusoge.Gameplay
         
         private void OnHarvestingIndexChanged((int Previous, int Current) indices)
         {
+            if (!actionRequested) return;
+            
             var (previous, current) = indices;
-            if (previous != -1 || current < 0 || !actionRequested) return;
+            if (current < 0) return;
+            if (previous >= 0 && previous == current) return;
             beeAudioPresenter.Play(BeeAudioEnum.MoguMogu);
         }
         
@@ -64,7 +67,7 @@ namespace Kusoge.Gameplay
             while (!token.IsCancellationRequested)
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(munchDuration), cancellationToken: token);
-                mouthCloseObject.SetActive(CurrentHarvestingIndex >= 0);
+                mouthCloseObject.SetActive(CurrentHarvestingIndex >= 0 && actionRequested);
                 await UniTask.Delay(TimeSpan.FromSeconds(munchDuration), cancellationToken: token);
                 mouthCloseObject.SetActive(false);
             }
