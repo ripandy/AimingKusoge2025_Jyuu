@@ -20,7 +20,7 @@ namespace Kusoge.Gameplay
 
         private void UpdateNectar(Game g)
         {
-            nectarText.text = g.CollectedNectar.ToString();
+            nectarText.text = $"{g.CollectedNectar}/{g.TargetNectar}";
         }
 
         private void OnDestroy()

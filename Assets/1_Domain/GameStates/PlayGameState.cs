@@ -99,6 +99,9 @@ namespace Domain.GameStates
 
             var (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter, beeAudioPresenter) =
                 await beePresenterFactory.Create(bee.Id, GameOverToken);
+
+            game.TargetNectar += bee.Capacity;
+            gamePresenter.Show(game);
             
             beePresenter.Show(bee.Id);
             beeMoveController.Initialize(bee.Id);
@@ -179,6 +182,11 @@ namespace Domain.GameStates
             else
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+            }
+            
+            if (game.IsLevelCleared)
+            {
+                gameCompletionSource.TrySetResult(true);
             }
             
             if (cts == null || GameOverToken.IsCancellationRequested) return;

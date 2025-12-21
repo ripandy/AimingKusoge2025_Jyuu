@@ -21,7 +21,7 @@ namespace Domain
         internal void Initialize()
         {
             CollectedNectar = 0;
-            TargetNectar = 3;
+            TargetNectar = 0;
         }
 
         internal void CollectNectar(int amount)
@@ -29,10 +29,7 @@ namespace Domain
             CollectedNectar += amount;
         }
 
-        internal bool IsGameOver()
-        {
-            return false;
-        }
+        internal bool IsLevelCleared => CollectedNectar >= TargetNectar;
     }
 
     public interface IGamePresenter
