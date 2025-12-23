@@ -5,21 +5,28 @@ namespace Domain
     [Serializable]
     public struct Flower
     {
-        public int pollen;
+        public int nectar;
+     
+        public int Id { get; private set; }   
+        public int CurrentNectar { get; internal set; }
+        public bool IsEmpty => CurrentNectar <= 0;
         
-        public int CurrentPollen { get; internal set; }
-        public bool IsEmpty => CurrentPollen <= 0;
-        
-        internal void Initialize()
+        internal void Initialize(int id)
         {
-            CurrentPollen = pollen;
+            Id = id;
+            CurrentNectar = nectar;
         }
         
         internal int Harvest(int amount)
         {
-            var harvested = amount < CurrentPollen ? amount : CurrentPollen;
-            CurrentPollen = Math.Max(0, CurrentPollen - harvested);
+            var harvested = amount < CurrentNectar ? amount : CurrentNectar;
+            CurrentNectar -= harvested;
             return harvested;
         }
+    }
+    
+    public interface IFlowerPresenter
+    {
+        void Show(int nectar, int maxNectar);
     }
 }

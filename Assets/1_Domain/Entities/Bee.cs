@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace Domain
 {
@@ -9,41 +10,66 @@ namespace Domain
     {
         internal static int ID;
         
-        public int Id { get; }
-        public int Pollen { get; internal set; }
-        public int Capacity { get; internal set; }
-        public int HarvestPower { get; internal set; }
+        [Header("Attributes")]
+        [SerializeField] internal int capacity;
+        [SerializeField] internal int harvestPower;
         
-        public bool IsFull => Pollen >= Capacity;
+        [Header("Physics")]
+        [SerializeField] internal float baseWeight;
+        [SerializeField] private float moveForce;
+        [SerializeField] private float flapForce;
+        
+        public int Id { get; internal set; }
+        
+        public int Capacity => capacity;
+        public float BaseWeight => baseWeight;
+        public int Nectar { get; internal set; }
+        public float NectarRate => (float)Nectar / capacity;
+        public bool IsFull => Nectar >= capacity;
+        
+        // physics
+        public float MoveForce => moveForce;
 
-        internal Bee(int id)
-        {
-            Id = id;
-            Pollen = 0;
-            Capacity = 1;
-            HarvestPower = 1;
-        }
-        
         internal void Initialize()
         {
-            Pollen = 0;
-            Capacity = 1;
-            HarvestPower = 1;
+            Nectar = 0;
         }
         
         internal void Carry(int amount)
         {
-            var canCarry = Capacity - Pollen;
+            var canCarry = capacity - Nectar;
             if (canCarry <= 0) return;
             
             var carried = amount < canCarry ? amount : canCarry;
-            Pollen = Math.Min(Capacity, Pollen + carried);
+            Nectar = Math.Min(capacity, Nectar + carried);
+        }
+        
+        internal int StoreNectar()
+        {
+            if (Nectar <= 0) return 0;
+            var stored = Nectar < harvestPower ? Nectar : harvestPower;
+            Nectar -= stored;
+            return stored;
         }
     }
 
     public interface IBeePresenter
     {
-        UniTask<int> WaitForHarvest(int id, CancellationToken cancellationToken = default);
-        UniTask WaitForBeeHive(int id, CancellationToken cancellationToken = default);
+        void Show(int beeId);
+    }
+    
+    public interface IBeeMoveController
+    {
+        void Initialize(int beeId);
+    }
+
+    public interface IBeeHarvestPresenter
+    {
+        UniTask<int> WaitForHarvest(CancellationToken cancellationToken = default);
+    }
+    
+    public interface IBeeStoreNectarPresenter
+    {
+        UniTask WaitForStoreNectar(CancellationToken cancellationToken = default);
     }
 }

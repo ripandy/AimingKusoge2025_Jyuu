@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab385f1d547164b8aae31f938ec3a0e9, type: 3}
+  m_Name: BeeAudio_Hoshii
+  m_EditorClassIdentifier: Soar.Base::Soar.Collections.AudioClipList
+  list:
+  - {fileID: 8300000, guid: 97da3671ba1b64e84a0f5bdaefd964c4, type: 3}
+  - {fileID: 8300000, guid: c95e711d19a0f4315afdfb45ead0ee62, type: 3}
+  - {fileID: 8300000, guid: 44dae939cf9b14ef28667ca6e1bf5817, type: 3}
+  - {fileID: 8300000, guid: 6d52d68b1d62f4df3945169fd554ae9a, type: 3}
+  - {fileID: 8300000, guid: acd0aa29975c34b47b28e7d01996c2b8, type: 3}
+  - {fileID: 8300000, guid: 0c3a4c0bf0b5841008c4038e5855b651, type: 3}
+  - {fileID: 8300000, guid: 96f2b3e2f588e4187b866802f612d3de, type: 3}
+  - {fileID: 8300000, guid: 59e066bf9d7c64812b5d9309a0405353, type: 3}
+  - {fileID: 8300000, guid: 0b76a84a1f59e44509a32acba8462fba, type: 3}
+  - {fileID: 8300000, guid: a894c897b82c04123bedfbe5450f79ab, type: 3}
+  - {fileID: 8300000, guid: fa93b749423154b718a86bd949081b15, type: 3}
+  - {fileID: 8300000, guid: bf236200c387f4656b195bc7f2cb02cb, type: 3}
+  - {fileID: 8300000, guid: 24d4b9a39d53a4390bc8bf517d41e45f, type: 3}
+  - {fileID: 8300000, guid: 9d231c3ac392f40f5aaa1304ce555de6, type: 3}
+  - {fileID: 8300000, guid: 592a0a003ba834c818a04a9bdb040edb, type: 3}
+  valueEventType: 0
+  autoResetValue: 0

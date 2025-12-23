@@ -80,3 +80,5 @@ crashlytics-build.properties
 .DS_Store
 Assets/Packages/*
 Assets/Packages.meta
+Assets/*.json*
+Assets/3_Contents/Fonts/こうさぎフォント*

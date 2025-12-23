@@ -1,44 +1,76 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Domain.Interfaces;
+using UnityEngine;
 
 namespace Domain.GameStates
 {
     public class PlayGameState : IGameState, IDisposable
     {
         private Game game;
+        
         private readonly IList<Bee> beeList;
         private readonly IList<Flower> flowerList;
-        private readonly IBeePresenter beePresenter;
+        private readonly IGamePresenter gamePresenter;
+
+        private readonly IDictionary<int, IBeePresenter> beePresenters;
+        private readonly IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters;
+        private readonly IDictionary<int, IBeeStoreNectarPresenter> beeStoreNectarPresenters;
+        private readonly IDictionary<int, IBeeAudioPresenter> beeAudioPresenters;
+
+        private readonly IBeePresenterFactory beePresenterFactory;
+        private readonly IList<IFlowerPresenter> flowerPresenters;
 
         public GameStateEnum Id => GameStateEnum.GamePlay;
 
         private CancellationTokenSource cts;
         private CancellationToken GameOverToken => cts.Token;
 
+        private UniTaskCompletionSource<bool> firstStorageCompletionSource;
         private UniTaskCompletionSource<bool> gameCompletionSource;
 
         public PlayGameState(
             Game game,
             IList<Bee> beeList,
             IList<Flower> flowerList,
-            IBeePresenter beePresenter)
+            IGamePresenter gamePresenter,
+            IDictionary<int, IBeePresenter> beePresenters,
+            IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters,
+            IDictionary<int, IBeeStoreNectarPresenter> beeStoreNectarPresenters,
+            IDictionary<int, IBeeAudioPresenter> beeAudioPresenters,
+            IBeePresenterFactory beePresenterFactory,
+            IList<IFlowerPresenter> flowerPresenters)
         {
             this.game = game;
             this.beeList = beeList;
             this.flowerList = flowerList;
-            this.beePresenter = beePresenter;
+            this.gamePresenter = gamePresenter;
+            this.beePresenters = beePresenters;
+            this.beeHarvestPresenters = beeHarvestPresenters;
+            this.beeStoreNectarPresenters = beeStoreNectarPresenters;
+            this.beeAudioPresenters = beeAudioPresenters;
+            this.beePresenterFactory = beePresenterFactory;
+            this.flowerPresenters = flowerPresenters;
         }
         
         public async UniTask<GameStateEnum> Running(CancellationToken cancellationToken = default)
         {
             cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             gameCompletionSource = new UniTaskCompletionSource<bool>();
+            firstStorageCompletionSource = new UniTaskCompletionSource<bool>();
+            
+            // NOTE: due to Game being a struct, the initialization from intro state is not reflected here. Hence, re-initialize.
+            game.Initialize();
+            gamePresenter.Show(game);
+            
+            DeployBee().Forget();
+            
+            await firstStorageCompletionSource.Task;
             
             HandleBeeDeployment().Forget();
-            // HandleMoveInput().Forget();
-            // HandleFlapInput().Forget();
 
             await gameCompletionSource.Task;
             await UniTask.Yield();
@@ -48,59 +80,117 @@ namespace Domain.GameStates
 
         private async UniTaskVoid HandleBeeDeployment()
         {
-            while (cts != null && !GameOverToken.IsCancellationRequested)
-            {
-                if (beeList.Count < game.maxBees)
-                {
-                    DeployBee().Forget();
-                }
-                await UniTask.Delay(game.beeDeployDelay, cancellationToken: GameOverToken).SuppressCancellationThrow();
-            }
+            await UniTask.Delay(TimeSpan.FromSeconds(game.beeDeployDelay), cancellationToken: GameOverToken).SuppressCancellationThrow();
+            
+            if (beePresenters.Count < beeList.Count)
+                DeployBee().Forget();
+            
+            if (cts == null || GameOverToken.IsCancellationRequested) return;
+            
+            HandleBeeDeployment().Forget();
         }
 
         private async UniTaskVoid DeployBee()
         {
-            var bee = new Bee(Bee.ID++);
-            beeList.Add(bee);
+            var bee = beeList[Bee.ID];
+            bee.Id = Bee.ID;
+            beeList[Bee.ID++] = bee;
+            Debug.Log($"[{GetType().Name}] Bee deployed. id={bee.Id}");
 
-            while (cts != null && !GameOverToken.IsCancellationRequested)
-            {
-                var (cancelled, result) = await UniTask.WhenAny(
-                    beePresenter.WaitForHarvest(bee.Id, GameOverToken),
-                    beePresenter.WaitForBeeHive(bee.Id, GameOverToken))
-                    .SuppressCancellationThrow();
-                
-                if (cancelled) break;
-                
-                if (result.hasResultLeft)
+            var (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter, beeAudioPresenter) =
+                await beePresenterFactory.Create(bee.Id, GameOverToken);
+
+            game.TargetNectar += bee.Capacity;
+            gamePresenter.Show(game);
+            
+            beePresenter.Show(bee.Id);
+            beeMoveController.Initialize(bee.Id);
+
+            var deployAudio = bee.Id == 0
+                ? BeeAudioEnum.Mitsuda //BeeAudioEnum.OnakaSuita
+                : (bee.Id % 5) switch
                 {
-                    HarvestPollen(result.result);
-                    continue;
-                }
-                
-                DepositPollen();
-                if (!game.IsGameOver()) continue;
-                
-                gameCompletionSource.TrySetResult(true);
-                cts?.Cancel();
-            }
+                    1 => BeeAudioEnum.Mitsuda,
+                    2 => BeeAudioEnum.Hoshii,
+                    _ => BeeAudioEnum.Watashimo
+                };
 
-            void HarvestPollen(int flowerId)
+            beeAudioPresenter.Play(deployAudio);
+            
+            beePresenters[bee.Id] = beePresenter;
+            beeHarvestPresenters[bee.Id] = beeHarvestPresenter;
+            beeStoreNectarPresenters[bee.Id] = beeStoreNectarPresenter;
+            beeAudioPresenters[bee.Id] = beeAudioPresenter;
+            
+            HandleHarvest(bee.Id, beeHarvestPresenter).Forget();
+            HandleStoreNectar(bee.Id, beeStoreNectarPresenter).Forget();
+        }
+
+        private async UniTaskVoid HandleHarvest(int beeId, IBeeHarvestPresenter beeHarvestPresenter)
+        {
+            var canHarvest = !beeList[beeId].IsFull && flowerList.Any(f => !f.IsEmpty);
+            if (canHarvest)
             {
+                Debug.Log($"[{GetType().Name}] Bee {beeId} trying to harvests Flower");
+                var flowerId = await beeHarvestPresenter.WaitForHarvest(GameOverToken);
                 var flower = flowerList[flowerId];
-                if (bee.IsFull || flower.IsEmpty) return;
-                
-                var harvested = flower.Harvest(bee.HarvestPower);
-                bee.Carry(harvested);
+                var bee = beeList[beeId];
+                if (!flower.IsEmpty)
+                {
+                    var harvested = flower.Harvest(bee.harvestPower);
+                    bee.Carry(harvested);
+                    
+                    beeList[bee.Id] = bee;
+                    flowerList[flower.Id] = flower;
+                    
+                    Debug.Log($"[{GetType().Name}] Bee {bee.Id} harvested {harvested} from Flower {flower.Id}. Bee nectar={bee.Nectar}/{bee.capacity}, Flower nectar={flower.CurrentNectar}/{flower.nectar}");
+                    
+                    beePresenters[bee.Id].Show(bee.Id);
+                    flowerPresenters[flower.Id].Show(flower.CurrentNectar, flower.nectar);
+                    
+                    // TODO: present harvested animation
+                    await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+                }
+            }
+            else
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
             }
             
-            void DepositPollen()
+            if (cts == null || GameOverToken.IsCancellationRequested) return;
+            HandleHarvest(beeId, beeHarvestPresenter).Forget();
+        }
+        
+        private async UniTaskVoid HandleStoreNectar(int beeId, IBeeStoreNectarPresenter beeStoreNectarPresenter)
+        {
+            if (beeList[beeId].Nectar > 0)
             {
-                if (bee.Pollen <= 0) return;
+                await beeStoreNectarPresenter.WaitForStoreNectar(GameOverToken);
                 
-                game.CollectPollen(bee.Pollen);
-                bee.Pollen = 0;
+                var bee = beeList[beeId];
+                var storeAmount = bee.StoreNectar();
+                game.CollectNectar(storeAmount);
+                beeList[bee.Id] = bee;
+                
+                gamePresenter.Show(game);
+                beePresenters[bee.Id].Show(bee.Id);
+                Debug.Log($"[{GetType().Name}] Bee {bee.Id} stored nectar. Total nectar={game.CollectedNectar}");
+                
+                if (firstStorageCompletionSource.Task.Status == UniTaskStatus.Pending && game.CollectedNectar >= 2)
+                    firstStorageCompletionSource.TrySetResult(true);
             }
+            else
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+            }
+            
+            if (game.IsLevelCleared)
+            {
+                gameCompletionSource.TrySetResult(true);
+            }
+            
+            if (cts == null || GameOverToken.IsCancellationRequested) return;
+            HandleStoreNectar(beeId, beeStoreNectarPresenter).Forget();
         }
 
         public void Dispose()

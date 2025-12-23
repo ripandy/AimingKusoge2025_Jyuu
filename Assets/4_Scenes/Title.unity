@@ -344,6 +344,18 @@ PrefabInstance:
       value: "\u30AD\u30E9\u30FC\u30AD\u30E3\u30EA\u30FC\u306A\u3044\u3059\u304D\u3089\u308A\u3061\u3085\u3093"
       objectReference: {fileID: 0}
     - target: {fileID: 7132223957310498569, guid: b614982c7a6124e579269abba8c60d8c, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 16abaa022e25742fb82b7a8554f8de1a, type: 2}
+    - target: {fileID: 7132223957310498569, guid: b614982c7a6124e579269abba8c60d8c, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 4499482859007887145, guid: 16abaa022e25742fb82b7a8554f8de1a, type: 2}
+    - target: {fileID: 7132223957310498569, guid: b614982c7a6124e579269abba8c60d8c, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7132223957310498569, guid: b614982c7a6124e579269abba8c60d8c, type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
       objectReference: {fileID: 0}

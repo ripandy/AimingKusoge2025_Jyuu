@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Flower
+  - Bounds
+  - BeeHive
+  - Bee
   layers:
   - Default
   - TransparentFX
@@ -52,6 +56,18 @@ TagManager:
     locked: 0
   - name: Bee
     uniqueID: 1409094245
+    locked: 0
+  - name: Foreground
+    uniqueID: 3292385859
+    locked: 0
+  - name: HUD
+    uniqueID: 511265703
+    locked: 0
+  - name: UI
+    uniqueID: 3720370317
+    locked: 0
+  - name: DialogUI
+    uniqueID: 628220085
     locked: 0
   m_RenderingLayers:
   - Default

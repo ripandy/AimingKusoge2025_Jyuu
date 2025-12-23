@@ -19,8 +19,8 @@ namespace Domain.GameStates
 
         public async UniTask<GameStateEnum> Running(CancellationToken cancellationToken = default)
         {
-            var restart = await gameOverPresenter.ShowAsync(game.CollectedPollen, cancellationToken);
-            return restart ? GameStateEnum.Intro : GameStateEnum.None;
+            await gameOverPresenter.ShowAsync(game.CollectedNectar, cancellationToken);
+            return GameStateEnum.None;
         }
     }
 }
