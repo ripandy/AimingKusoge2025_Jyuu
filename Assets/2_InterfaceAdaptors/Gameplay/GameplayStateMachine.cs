@@ -6,7 +6,7 @@ using Domain.GameStates;
 using Soar.Commands;
 using UnityEngine;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public class GameplayStateMachine : MonoBehaviour, IInjectableComponent
     {

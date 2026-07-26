@@ -6,7 +6,7 @@ using Soar;
 using Soar.Collections;
 using UnityEngine;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public class BeeAudioPresenter : MonoBehaviour, IBeeAudioPresenter
     {

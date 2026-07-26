@@ -4,10 +4,10 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Domain;
 using Domain.Interfaces;
-using Kusoge.SOAR;
+using YukiQuest.SOAR;
 using UnityEngine;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public class BeePresenterFactory : MonoBehaviour, IBeePresenterFactory
     {

@@ -1,10 +1,10 @@
 using System;
 using Domain;
-using Kusoge.SOAR;
+using YukiQuest.SOAR;
 using TMPro;
 using UnityEngine;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public class BeeHivePresenter : MonoBehaviour
     {

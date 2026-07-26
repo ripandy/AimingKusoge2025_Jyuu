@@ -5,7 +5,7 @@ using Domain;
 using R3;
 using UnityEngine;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public class BeeHarvestPresenter : BeeTriggerAction, IBeeHarvestPresenter
     {

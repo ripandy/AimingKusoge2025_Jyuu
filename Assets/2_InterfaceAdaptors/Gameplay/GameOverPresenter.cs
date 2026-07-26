@@ -4,7 +4,7 @@ using Domain.Interfaces;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public class GameOverPresenter : MonoBehaviour, IGameOverPresenter
     {

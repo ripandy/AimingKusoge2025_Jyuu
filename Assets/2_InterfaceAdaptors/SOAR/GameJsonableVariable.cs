@@ -2,9 +2,9 @@ using Domain;
 using Soar.Variables;
 using UnityEngine;
 
-namespace Kusoge.SOAR
+namespace YukiQuest.SOAR
 {
-    [CreateAssetMenu(fileName = "GameJsonableVariable", menuName = "Kusoge/GameJsonableVariable", order = -1)]
+    [CreateAssetMenu(fileName = "GameJsonableVariable", menuName = "YukiQuest/GameJsonableVariable", order = -1)]
     public class GameJsonableVariable : JsonableVariable<Game>, IGamePresenter
     {
         void IGamePresenter.Show(Game game)

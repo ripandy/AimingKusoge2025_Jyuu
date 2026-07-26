@@ -2,7 +2,7 @@ using Domain;
 using Soar.Events;
 using UnityEngine;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public class BeeCollisionHandler : MonoBehaviour
     {

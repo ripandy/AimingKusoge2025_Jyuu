@@ -2,7 +2,7 @@ using Domain;
 using TMPro;
 using UnityEngine;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public class FlowerPresenter : MonoBehaviour, IFlowerPresenter
     {
