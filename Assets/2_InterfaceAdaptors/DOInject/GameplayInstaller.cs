@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
-using Kusoge.SOAR;
+using YukiQuest.SOAR;
 using Doinject;
 using Domain;
 using Domain.GameStates;
 using Domain.Interfaces;
-using Kusoge.Gameplay;
+using YukiQuest.Gameplay;
 using Soar;
 using UnityEngine;
 
-namespace Kusoge.Installer
+namespace YukiQuest.Installer
 {
     public class GameplayInstaller : MonoBehaviour, IBindingInstaller
     {

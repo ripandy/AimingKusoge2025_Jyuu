@@ -2,7 +2,7 @@ using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public abstract class BeeTriggerAction : MonoBehaviour
     {

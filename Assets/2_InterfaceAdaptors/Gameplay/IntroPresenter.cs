@@ -8,7 +8,7 @@ using Soar.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public class IntroPresenter : MonoBehaviour, IIntroPresenter
     {

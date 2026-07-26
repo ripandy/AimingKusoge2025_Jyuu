@@ -2,13 +2,13 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Domain;
-using Kusoge.SOAR;
+using YukiQuest.SOAR;
 using R3;
 using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Kusoge.Gameplay
+namespace YukiQuest.Gameplay
 {
     public class BeePresenter : MonoBehaviour, IBeePresenter
     {
