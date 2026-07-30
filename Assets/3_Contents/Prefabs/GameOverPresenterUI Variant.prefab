@@ -158,7 +158,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 431348319222603158, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PyrasLab.AppStateManagement.ResetAppCommand, AppStateManagement
+      value: Ripandy.AppStateManagement.ResetAppCommand, AppStateManagement
       objectReference: {fileID: 0}
     - target: {fileID: 431348319222603158, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
@@ -570,7 +570,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7348833185047506495, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PyrasLab.AppStateManagement.ResetAppCommand, AppStateManagement
+      value: Ripandy.AppStateManagement.ResetAppCommand, AppStateManagement
       objectReference: {fileID: 0}
     - target: {fileID: 7348833185047506495, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument

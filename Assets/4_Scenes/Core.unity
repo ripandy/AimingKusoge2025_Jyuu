@@ -359,7 +359,7 @@ MonoBehaviour:
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 11400000, guid: 65161611ae4d54aa0961a4d296b314c4, type: 2}
-        m_TargetAssemblyTypeName: DefaultNamespace.Vector2InputVariable, SoarExtensions
+        m_TargetAssemblyTypeName: Ripandy.InputSystemHandler.Vector2InputVariable, InputSystemHandler
         m_MethodName: Raise
         m_Mode: 0
         m_Arguments:
@@ -431,7 +431,7 @@ MonoBehaviour:
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 11400000, guid: bec10f214a6984206849247363bb935b, type: 2}
-        m_TargetAssemblyTypeName: Feature.Extension.ButtonInputVariable, SoarExtensions
+        m_TargetAssemblyTypeName: Ripandy.InputSystemHandler.ButtonInputVariable, InputSystemHandler
         m_MethodName: Raise
         m_Mode: 0
         m_Arguments:

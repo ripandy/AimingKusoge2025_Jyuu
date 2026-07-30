@@ -827,14 +827,14 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: PyrasLabTemplate
+  metroPackageName: YukiQuest
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: PyrasLabTemplate
+  metroApplicationDescription: YukiQuest
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0

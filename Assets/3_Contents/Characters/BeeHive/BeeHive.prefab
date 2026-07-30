@@ -552,7 +552,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fc01f7e5947b48b08968cdfaccb68380, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeePresenterFactory
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeePresenterFactory
   beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
   beePrefab: {fileID: 9106378410089508891, guid: 2f3c17120ad0947b9a57b2abe6fed78c, type: 3}
   spawnPoint: {fileID: 8398698394875549564}
@@ -567,6 +567,6 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fc1d759d7e2f413fbd4aec27849035aa, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeeHivePresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeeHivePresenter
   game: {fileID: 11400000, guid: 8796b9d4c99c84f4aa70c93517f3330d, type: 2}
   nectarText: {fileID: 2648087521467701494}
