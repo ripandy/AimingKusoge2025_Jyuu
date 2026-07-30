@@ -1291,7 +1291,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5a37be0419a74727b861e0b6cd569010, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.GameplayStateMachine
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.GameplayStateMachine
   resetAppCommand: {fileID: 11400000, guid: f5f66301664274e77957a2a077d633df, type: 2}
   initialState: 0
 --- !u!1 &513822425
@@ -2051,7 +2051,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5a94c46260c4e4fa84fc55c1c7cb1f7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.FlowerPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.FlowerPresenter
 --- !u!1001 &1284621848
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2678,7 +2678,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f4e712dd118843bb90a05d8008bbe39, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::GameplayInstaller
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Installer.GameplayInstaller
   beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
   flowerList: {fileID: 11400000, guid: 2109ccf4c9b0a428b9ea4b2ef839575d, type: 2}
   gameJsonableVariable: {fileID: 11400000, guid: 8796b9d4c99c84f4aa70c93517f3330d, type: 2}
@@ -2919,7 +2919,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eb5e2c34f2ac464eb4754b67932f2bb9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Presenters.GameOverPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.GameOverPresenter
   uiGameObject: {fileID: 228544114250417364}
   restartButton: {fileID: 228544114250417366}
   exitButton: {fileID: 228544114250417365}
@@ -3445,7 +3445,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f0021cd4ec344f378c8542990241e666, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Presenters.IntroPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.IntroPresenter
   introAudioList: {fileID: 11400000, guid: a5e04c043a0d64ed9b728da76401afef, type: 2}
   canvasGroup: {fileID: 1340861442}
   audioSource: {fileID: 118563409}
@@ -3901,7 +3901,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fc01f7e5947b48b08968cdfaccb68380, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeePresenterFactory
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeePresenterFactory
 --- !u!1 &2135718735
 GameObject:
   m_ObjectHideFlags: 0
@@ -4375,7 +4375,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5a94c46260c4e4fa84fc55c1c7cb1f7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.FlowerPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.FlowerPresenter
 --- !u!1001 &1828956870995512841
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4610,7 +4610,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5a94c46260c4e4fa84fc55c1c7cb1f7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.FlowerPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.FlowerPresenter
 --- !u!1001 &4189126034455740043
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4682,7 +4682,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5a94c46260c4e4fa84fc55c1c7cb1f7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.FlowerPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.FlowerPresenter
 --- !u!1001 &4633741618603422042
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4816,7 +4816,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5a94c46260c4e4fa84fc55c1c7cb1f7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.FlowerPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.FlowerPresenter
 --- !u!1001 &5846202097197207844
 PrefabInstance:
   m_ObjectHideFlags: 0

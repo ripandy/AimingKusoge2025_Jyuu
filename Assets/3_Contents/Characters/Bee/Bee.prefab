@@ -954,7 +954,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f30e982082a43578346f57dc325b99d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeePresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeePresenter
   beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
   nectarText: {fileID: 6215002797818576722}
   blinkObject: {fileID: 650912769251420746}
@@ -969,7 +969,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9ddbb4dce61164b40a68ee69bf61a115, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Controller.BeeMoveController
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeeMoveController
   gameData: {fileID: 11400000, guid: 8796b9d4c99c84f4aa70c93517f3330d, type: 2}
   beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
   moveInput: {fileID: 11400000, guid: 65161611ae4d54aa0961a4d296b314c4, type: 2}
@@ -987,7 +987,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4fad6268eefb457dbb6a49f1f3e55380, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeeHarvestPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeeHarvestPresenter
   targetTag: Flower
   progress: {fileID: 7695931123660093424}
   actionDelay: 3
@@ -1004,7 +1004,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 456e832937acd4c838ec0638a09518b8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeeStoreNectarPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeeStoreNectarPresenter
   targetTag: BeeHive
   progress: {fileID: 7695931123660093424}
   actionDelay: 3
@@ -1019,7 +1019,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 17c459fec1a2424885f6510dc1f82897, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BeeAudio
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeeAudioPresenter
   beeAudioKeyValuePair:
   - <Key>k__BackingField: 1
     <Value>k__BackingField: {fileID: 11400000, guid: 822388d3501ee462fb37c3e8cc6e2836, type: 2}
@@ -1047,7 +1047,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 75a37dfc53384fbea069d2732b580708, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.BoundaryHandler
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BoundaryHandler
   left: -10
   right: 10
   top: 7.5

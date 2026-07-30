@@ -481,7 +481,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5a94c46260c4e4fa84fc55c1c7cb1f7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InterfaceAdaptors::Kusoge.Gameplay.FlowerPresenter
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.FlowerPresenter
   nectarObject: {fileID: 1237566243275766496}
   emptyNectarObject: {fileID: 6077402836116739518}
   nectarText: {fileID: 5053122474741623162}
