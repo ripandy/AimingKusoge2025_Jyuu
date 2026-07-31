@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 202c75118a944327a2a8f559d65ebd99, type: 3}
   m_Name: MoveInputVariable
-  m_EditorClassIdentifier: SoarExtensions::DefaultNamespace.Vector2InputVariable
+  m_EditorClassIdentifier: InputSystemHandler::Ripandy.InputSystemHandler.Vector2InputVariable
   value: {x: 0, y: 0}
   valueEventType: 0
   autoResetValue: 1
