@@ -8,27 +8,24 @@ namespace Domain
     [Serializable]
     public struct Bee
     {
-        internal static int ID;
-        
         [Header("Attributes")]
         [SerializeField] internal int capacity;
         [SerializeField] internal int harvestPower;
-        
+
         [Header("Physics")]
-        [SerializeField] internal float baseWeight;
-        [SerializeField] private float moveForce;
+        [SerializeField] private float moveSpeed;
         [SerializeField] private float flapForce;
-        
+
         public int Id { get; internal set; }
-        
+
         public int Capacity => capacity;
-        public float BaseWeight => baseWeight;
         public int Nectar { get; internal set; }
         public float NectarRate => (float)Nectar / capacity;
         public bool IsFull => Nectar >= capacity;
-        
+
         // physics
-        public float MoveForce => moveForce;
+        public float MoveSpeed => moveSpeed;
+        public float FlapForce => flapForce;
 
         internal void Initialize()
         {
@@ -44,11 +41,15 @@ namespace Domain
             Nectar = Math.Min(capacity, Nectar + carried);
         }
         
+        /// <summary>
+        /// Unloads the whole carried amount in one go. Delivering used to drip out
+        /// <see cref="harvestPower"/> per visit, which meant several separate hovers at the hive to
+        /// empty a single load — it read as a bug rather than a mechanic.
+        /// </summary>
         internal int StoreNectar()
         {
-            if (Nectar <= 0) return 0;
-            var stored = Nectar < harvestPower ? Nectar : harvestPower;
-            Nectar -= stored;
+            var stored = Nectar;
+            Nectar = 0;
             return stored;
         }
     }

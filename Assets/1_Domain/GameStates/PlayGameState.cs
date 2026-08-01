@@ -29,8 +29,11 @@ namespace Domain.GameStates
         private CancellationTokenSource cts;
         private CancellationToken GameOverToken => cts.Token;
 
-        private UniTaskCompletionSource<bool> firstStorageCompletionSource;
         private UniTaskCompletionSource<bool> gameCompletionSource;
+
+        // Chapter 1 is a single-bee game. The remaining BeeList entries are kept as tuning data
+        // for the AI helper bees that come later.
+        private const int PlayerBeeId = 0;
 
         public PlayGameState(
             Game game,
@@ -60,69 +63,36 @@ namespace Domain.GameStates
         {
             cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             gameCompletionSource = new UniTaskCompletionSource<bool>();
-            firstStorageCompletionSource = new UniTaskCompletionSource<bool>();
-            
+
             // NOTE: due to Game being a struct, the initialization from intro state is not reflected here. Hence, re-initialize.
             game.Initialize();
             gamePresenter.Show(game);
 
-            // NOTE: Bee.ID is static, so it survives a scene reload (resetAppCommand). Reset it here,
-            // otherwise the next play session starts past the end of beeList.
-            Bee.ID = 0;
-            
             DeployBee().Forget();
-            
-            await firstStorageCompletionSource.Task;
-            
-            HandleBeeDeployment().Forget();
 
             await gameCompletionSource.Task;
             await UniTask.Yield();
-            
+
             return GameStateEnum.GameOver;
-        }
-
-        private async UniTaskVoid HandleBeeDeployment()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(game.beeDeployDelay), cancellationToken: GameOverToken).SuppressCancellationThrow();
-
-            if (cts == null || GameOverToken.IsCancellationRequested) return;
-
-            DeployBee().Forget();
-
-            HandleBeeDeployment().Forget();
         }
 
         private async UniTaskVoid DeployBee()
         {
-            // all bees are already deployed
-            if (Bee.ID >= beeList.Count) return;
+            if (beeList.Count <= PlayerBeeId) return;
 
-            var bee = beeList[Bee.ID];
-            bee.Id = Bee.ID;
-            beeList[Bee.ID++] = bee;
+            var bee = beeList[PlayerBeeId];
+            bee.Id = PlayerBeeId;
+            beeList[PlayerBeeId] = bee;
             Debug.Log($"[{GetType().Name}] Bee deployed. id={bee.Id}");
 
             var (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter, beeAudioPresenter) =
                 await beePresenterFactory.Create(bee.Id, GameOverToken);
 
-            game.TargetNectar += bee.Capacity;
-            gamePresenter.Show(game);
-            
             beePresenter.Show(bee.Id);
             beeMoveController.Initialize(bee.Id);
 
-            var deployAudio = bee.Id == 0
-                ? BeeAudioEnum.Mitsuda //BeeAudioEnum.OnakaSuita
-                : (bee.Id % 5) switch
-                {
-                    1 => BeeAudioEnum.Mitsuda,
-                    2 => BeeAudioEnum.Hoshii,
-                    _ => BeeAudioEnum.Watashimo
-                };
+            beeAudioPresenter.Play(BeeAudioEnum.Mitsuda);
 
-            beeAudioPresenter.Play(deployAudio);
-            
             beePresenters[bee.Id] = beePresenter;
             beeHarvestPresenters[bee.Id] = beeHarvestPresenter;
             beeStoreNectarPresenters[bee.Id] = beeStoreNectarPresenter;
@@ -180,10 +150,7 @@ namespace Domain.GameStates
                 
                 gamePresenter.Show(game);
                 beePresenters[bee.Id].Show(bee.Id);
-                Debug.Log($"[{GetType().Name}] Bee {bee.Id} stored nectar. Total nectar={game.CollectedNectar}");
-                
-                if (firstStorageCompletionSource.Task.Status == UniTaskStatus.Pending && game.CollectedNectar >= 2)
-                    firstStorageCompletionSource.TrySetResult(true);
+                Debug.Log($"[{GetType().Name}] Bee {bee.Id} stored nectar. Total nectar={game.CollectedNectar}/{game.TargetNectar}");
             }
             else
             {

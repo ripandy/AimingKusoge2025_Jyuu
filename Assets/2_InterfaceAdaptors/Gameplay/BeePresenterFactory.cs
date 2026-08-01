@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using Domain;
 using Domain.Interfaces;
 using YukiQuest.SOAR;
+using Soar.Variables;
 using UnityEngine;
 
 namespace YukiQuest.Gameplay
@@ -14,8 +15,17 @@ namespace YukiQuest.Gameplay
         [SerializeField] private BeeList beeList;
         [SerializeField] private GameObject beePrefab;
         [SerializeField] private Transform spawnPoint;
-        
+
+        [Tooltip("Published so the bee prefab, which cannot reference scene objects, can find its way home.")]
+        [SerializeField] private Variable<Transform> hivePoint;
+
         private readonly IDictionary<int, GameObject> beeObjects = new Dictionary<int, GameObject>();
+
+        private void Awake()
+        {
+            if (hivePoint != null)
+                hivePoint.Value = spawnPoint;
+        }
 
         public void Clear()
         {

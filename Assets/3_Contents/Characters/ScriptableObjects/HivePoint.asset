@@ -9,11 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2dc78fe21014497e9bba10bc4d67dff0, type: 3}
-  m_Name: GameJsonableVariable
-  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.SOAR.GameJsonableVariable
-  value:
-    level: 0
-    targetNectar: 0c000000
-  valueEventType: 1
+  m_Script: {fileID: 11500000, guid: d620603d587714d1391f0cc5fda9acc6, type: 3}
+  m_Name: HivePoint
+  m_EditorClassIdentifier: Soar.Base::Soar.Variables.TransformVariable
+  value: {fileID: 0}
+  valueEventType: 0
   autoResetValue: 0

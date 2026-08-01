@@ -931,7 +931,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0.5
   m_AngularDamping: 1
-  m_GravityScale: 0.5
+  m_GravityScale: 0
   m_Material: {fileID: 6200000, guid: d18e2adec00a94ec4abf288e9c4e3232, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -942,7 +942,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!114 &7695505837359706220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -970,12 +970,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ddbb4dce61164b40a68ee69bf61a115, type: 3}
   m_Name: 
   m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeeMoveController
-  gameData: {fileID: 11400000, guid: 8796b9d4c99c84f4aa70c93517f3330d, type: 2}
   beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
   moveInput: {fileID: 11400000, guid: 65161611ae4d54aa0961a4d296b314c4, type: 2}
   flapInput: {fileID: 11400000, guid: bec10f214a6984206849247363bb935b, type: 2}
   baseTransform: {fileID: 5462987590425309985}
   beeBody: {fileID: 3864291225567529804}
+  wingAnimator: {fileID: 3241541463043968227}
+  playerBeeTransform: {fileID: 11400000, guid: 2093bc66fe26c4e16b6e4b44dc14f069, type: 2}
+  moveSmoothTime: 0.12
+  impulseDecay: 2.5
+  bounceImpulse: 1.5
+  flapAnimSpeed: 3
+  flapAnimDuration: 0.35
 --- !u!114 &1713933332108565806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1048,10 +1054,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75a37dfc53384fbea069d2732b580708, type: 3}
   m_Name: 
   m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BoundaryHandler
-  left: -10
-  right: 10
-  top: 7.5
-  bottom: -2.5
+  stageBounds: {fileID: 11400000, guid: 8ba3c7039985c426584d533358b760bb, type: 2}
+  hivePoint: {fileID: 11400000, guid: 50d9386f342244280827f4db84cfa0e6, type: 2}
 --- !u!1 &9136089861212585374
 GameObject:
   m_ObjectHideFlags: 0

@@ -21,21 +21,22 @@ namespace YukiQuest.Gameplay
         
         public void Play(BeeAudioEnum beeAudio)
         {
-            if (AudioSource == null || beeAudio == BeeAudioEnum.None) return;
-            
-            if (cooldownTimer > 0f) return;
-            
+            if (beeAudio == BeeAudioEnum.None) return;
+
+            // The bump face is a reaction, not a line of dialogue — it must not be swallowed by the
+            // voice cooldown, or the bee would only wince once every few bumps.
+            if (beeAudio == BeeAudioEnum.Itai)
+                CloseEyes().Forget();
+
+            if (AudioSource == null || cooldownTimer > 0f) return;
+
             var audioList = beeAudioKeyValuePair.FirstOrDefault(pair => pair.Key == beeAudio).Value;
             if (audioList == null) return;
-            
+
             var randomIndex = Random.Range(0, audioList.Count);
             AudioSource.PlayOneShot(audioList[randomIndex]);
-            
-            Cooldown().Forget();
 
-            if (beeAudio != BeeAudioEnum.Itai) return;
-            
-            CloseEyes().Forget();
+            Cooldown().Forget();
         }
 
         private async UniTaskVoid Cooldown()
@@ -51,15 +52,16 @@ namespace YukiQuest.Gameplay
         
         private async UniTaskVoid CloseEyes()
         {
-            const float closeDuration = 3f;
+            const float closeDuration = 0.6f;
             eyesClosedObject.SetActive(true);
             await UniTask.Delay(System.TimeSpan.FromSeconds(closeDuration), cancellationToken: destroyCancellationToken);
             eyesClosedObject.SetActive(false);
         }
-        
+
+        // Bees no longer collide with each other, so the "ouch" face now belongs to ground bumps.
         private void OnCollisionEnter2D(Collision2D other)
         {
-            if (!other.gameObject.CompareTag("Bee")) return;
+            if (!other.gameObject.CompareTag("Bounds")) return;
             Play(BeeAudioEnum.Itai);
         }
     }
