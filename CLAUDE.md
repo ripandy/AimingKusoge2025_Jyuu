@@ -76,7 +76,10 @@ clears the stage.
   kicks (flap, ground bounce) live in a *separate* `impulseVelocity` that decays on its own —
   folding them into the smoothed movement erases them within a frame or two. A bounce **replaces**
   the current kick rather than adding to it; accumulating them let a player who holds into the
-  ground launch off the top of the stage.
+  ground launch off the top of the stage. The body is also forced to
+  `RigidbodySleepMode2D.NeverSleep`: without gravity the bee stops dead when the player lets go,
+  and Unity does not send `OnTriggerStay2D` to a sleeping body — so it would freeze the very dwell
+  timer it was hovering to fill.
 - **Boundaries are data, not colliders.** `StageBoundsPublisher` writes the chapter's extent into a
   `StageBoundsVariable` on `Awake`; `BoundaryHandler` clamps the sides and returns the bee to the
   hive when it exits the top, keeping its pollen. No wrapping, no ceiling collider.
@@ -87,7 +90,12 @@ clears the stage.
   scene reference either, which is why the hive spawn point is published the same way.
 - **Dwell actions** are `BeeTriggerAction` subclasses (`BeeHarvestPresenter`,
   `BeeStoreNectarPresenter`): trigger-stay timers that fill a radial `Image`, then resolve a
-  `UniTask` the domain is already awaiting.
+  `UniTask` the domain is already awaiting. Flower triggers can overlap, so the base class commits
+  to exactly one target and ignores the rest. **Commitment is taken in `OnTriggerStay2D`, never in
+  `OnTriggerEnter2D`** — drifting off one flower while already inside its neighbour fires no Enter
+  for that neighbour, so an Enter-based version could never re-commit and the ring stuck at full
+  forever. For the same reason `ExecuteAction` must not decline: the domain is awaiting it, and a
+  consumed request that resolves into nothing hangs that loop for the rest of the run.
 
 ### Bee voice audio
 Clips are named `<Line>_<Member>_<take>.mp3` for five family members (Apap, Ibun, Ranca, Raina,
