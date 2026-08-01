@@ -66,6 +66,12 @@ namespace YukiQuest.Gameplay
             BeeBody.constraints = RigidbodyConstraints2D.FreezeRotation;
             BeeBody.rotation = 0f;
 
+            // Unity does not send OnTriggerStay2D to a sleeping body. Without gravity the bee comes
+            // to a complete stop the moment the player lets go, which is precisely when it is
+            // hovering to harvest or deliver — so it would fall asleep and freeze its own dwell
+            // timer. Nothing here ever wants it asleep.
+            BeeBody.sleepMode = RigidbodySleepMode2D.NeverSleep;
+
             ResetMomentum();
 
             if (playerBeeTransform != null)
