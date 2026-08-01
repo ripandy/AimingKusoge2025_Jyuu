@@ -65,6 +65,10 @@ namespace Domain.GameStates
             // NOTE: due to Game being a struct, the initialization from intro state is not reflected here. Hence, re-initialize.
             game.Initialize();
             gamePresenter.Show(game);
+
+            // NOTE: Bee.ID is static, so it survives a scene reload (resetAppCommand). Reset it here,
+            // otherwise the next play session starts past the end of beeList.
+            Bee.ID = 0;
             
             DeployBee().Forget();
             
@@ -81,17 +85,19 @@ namespace Domain.GameStates
         private async UniTaskVoid HandleBeeDeployment()
         {
             await UniTask.Delay(TimeSpan.FromSeconds(game.beeDeployDelay), cancellationToken: GameOverToken).SuppressCancellationThrow();
-            
-            if (beePresenters.Count < beeList.Count)
-                DeployBee().Forget();
-            
+
             if (cts == null || GameOverToken.IsCancellationRequested) return;
-            
+
+            DeployBee().Forget();
+
             HandleBeeDeployment().Forget();
         }
 
         private async UniTaskVoid DeployBee()
         {
+            // all bees are already deployed
+            if (Bee.ID >= beeList.Count) return;
+
             var bee = beeList[Bee.ID];
             bee.Id = Bee.ID;
             beeList[Bee.ID++] = bee;

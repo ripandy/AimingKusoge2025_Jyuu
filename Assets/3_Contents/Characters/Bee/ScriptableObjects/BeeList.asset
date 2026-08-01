@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2665cc6138e403ab4627dd4d5aa12f8, type: 3}
   m_Name: BeeList
-  m_EditorClassIdentifier: InterfaceAdaptors::Contents.SOAR.BeeList
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.SOAR.BeeList
   list:
   - capacity: 3
     harvestPower: 1

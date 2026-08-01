@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2dc78fe21014497e9bba10bc4d67dff0, type: 3}
   m_Name: GameJsonableVariable
-  m_EditorClassIdentifier: InterfaceAdaptors::Contents.SOAR.GameJsonableVariable
+  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.SOAR.GameJsonableVariable
   value:
     level: 0
     beeDeployDelay: 1

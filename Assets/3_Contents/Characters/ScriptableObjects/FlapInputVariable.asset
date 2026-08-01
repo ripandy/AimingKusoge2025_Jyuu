@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d9b0630ebee49b4b49b0f3fb68d6442, type: 3}
   m_Name: FlapInputVariable
-  m_EditorClassIdentifier: SoarExtensions::Feature.Extension.ButtonInputVariable
+  m_EditorClassIdentifier: InputSystemHandler::Ripandy.InputSystemHandler.ButtonInputVariable
   value: 0
   valueEventType: 0
   autoResetValue: 1
