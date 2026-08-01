@@ -19,13 +19,11 @@ namespace YukiQuest.Gameplay
         
         protected override void Initialize(Transform other) { }
 
-        // There is only one hive, so there is never an ambiguous target to decline.
-        protected override bool TryExecuteAction(Transform other)
+        protected override void ExecuteAction(Transform other)
         {
             storedToHive.OnNext(Unit.Default);
-            return true;
         }
 
-        protected override bool Cleanup(Transform other) => true;
+        protected override void Cleanup(Transform other) { }
     }
 }

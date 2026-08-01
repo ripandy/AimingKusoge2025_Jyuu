@@ -38,24 +38,16 @@ namespace YukiQuest.Gameplay
             harvestingIndex.Value = other.parent.GetSiblingIndex();
         }
 
-        protected override bool TryExecuteAction(Transform other)
+        protected override void ExecuteAction(Transform other)
         {
-            var index = other.parent.GetSiblingIndex();
-
-            // Flowers can overlap, so this may fire for one the bee is not committed to.
-            if (CurrentHarvestingIndex == -1 || index != CurrentHarvestingIndex) return false;
-
-            flowerHarvested.OnNext(CurrentHarvestingIndex);
-            return true;
+            // Only ever called for the flower the bee committed to, so no index check is needed —
+            // and declining here would hang the harvest loop awaiting this subject.
+            flowerHarvested.OnNext(other.parent.GetSiblingIndex());
         }
 
-        protected override bool Cleanup(Transform other)
+        protected override void Cleanup(Transform other)
         {
-            // Leaving a neighbouring flower must not cancel the one being harvested.
-            if (other.parent.GetSiblingIndex() != CurrentHarvestingIndex) return false;
-
             harvestingIndex.Value = -1;
-            return true;
         }
         
         private void OnHarvestingIndexChanged((int Previous, int Current) indices)

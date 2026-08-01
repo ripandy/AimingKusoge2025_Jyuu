@@ -7,6 +7,11 @@ namespace YukiQuest.Gameplay
     /// <summary>
     /// A "stay put for a moment" action: the bee must remain inside a target's trigger for
     /// <see cref="actionDelay"/> seconds, shown by a radial fill, before the action resolves.
+    ///
+    /// Targets can overlap, so the bee commits to exactly one at a time and ignores the rest.
+    /// Commitment is (re)taken in OnTriggerStay2D rather than OnTriggerEnter2D: drifting off one
+    /// flower while already inside its neighbour produces no Enter event for that neighbour, and
+    /// binding to Enter alone left the bee unable to ever commit again.
     /// </summary>
     public abstract class BeeTriggerAction : MonoBehaviour
     {
@@ -15,26 +20,21 @@ namespace YukiQuest.Gameplay
         [SerializeField] private float actionDelay = 1f;
 
         private float elapsedTime;
+        private Collider2D committedTarget;
 
         protected bool actionRequested;
 
-        /// <summary>True once the bee has started dwelling on a target this cycle.</summary>
-        private bool IsDwelling => elapsedTime > 0f;
-
+        /// <summary>Called when the bee commits to a target.</summary>
         protected abstract void Initialize(Transform other);
 
         /// <summary>
-        /// Resolves the action. Return false to decline — for example when the trigger belongs to a
-        /// target other than the one being dwelled on. The request then stays live and is retried,
-        /// rather than being silently consumed.
+        /// Resolves the action. The base class guarantees <paramref name="other"/> is the committed
+        /// target, so implementations must not decline — anything awaiting this would hang.
         /// </summary>
-        protected abstract bool TryExecuteAction(Transform other);
+        protected abstract void ExecuteAction(Transform other);
 
-        /// <summary>
-        /// Called when a target is left. Return false if it was not the target being tracked, so an
-        /// overlapping neighbour cannot cancel an in-progress dwell.
-        /// </summary>
-        protected abstract bool Cleanup(Transform other);
+        /// <summary>Called when the committed target is released.</summary>
+        protected abstract void Cleanup(Transform other);
 
         protected virtual void Start()
         {
@@ -44,38 +44,50 @@ namespace YukiQuest.Gameplay
                 .AddTo(this);
         }
 
-        private void OnTriggerEnter2D(Collider2D other)
-        {
-            if (!other.gameObject.CompareTag(targetTag)) return;
-
-            // Drifting into a second target mid-dwell must not restart the timer on the first.
-            if (actionRequested && IsDwelling) return;
-
-            elapsedTime = 0f;
-            Initialize(other.transform);
-        }
-
         private void OnTriggerStay2D(Collider2D other)
         {
             if (!other.gameObject.CompareTag(targetTag) || !actionRequested) return;
 
+            // A flower's colliders are switched off once it runs dry, which would otherwise strand
+            // the commitment on a target that can no longer report anything.
+            if (committedTarget != null && !committedTarget.isActiveAndEnabled) Release();
+
+            if (committedTarget == null)
+            {
+                committedTarget = other;
+                elapsedTime = 0f;
+                Initialize(other.transform);
+            }
+            else if (committedTarget != other)
+            {
+                return;
+            }
+
             elapsedTime += Time.fixedDeltaTime;
             if (elapsedTime <= actionDelay) return;
 
-            // Keep the request alive when the subclass declines, so the dwell resolves as soon as
-            // the bee is unambiguously on one target. Consuming it here instead would leave the
-            // domain awaiting a result that can never arrive, and the timer dead for good.
-            if (!TryExecuteAction(other.transform)) return;
-
             elapsedTime = 0f;
             actionRequested = false;
+            committedTarget = null;
+
+            ExecuteAction(other.transform);
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
             if (!other.gameObject.CompareTag(targetTag)) return;
-            if (!Cleanup(other.transform)) return;
 
+            // Leaving a target the bee never committed to must not cancel the dwell in progress.
+            if (committedTarget != null && committedTarget != other) return;
+
+            committedTarget = null;
+            elapsedTime = 0f;
+            Cleanup(other.transform);
+        }
+
+        private void Release()
+        {
+            committedTarget = null;
             elapsedTime = 0f;
         }
     }
