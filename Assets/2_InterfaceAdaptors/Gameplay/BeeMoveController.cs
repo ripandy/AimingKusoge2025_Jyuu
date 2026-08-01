@@ -35,11 +35,14 @@ namespace YukiQuest.Gameplay
         [SerializeField] private float bounceImpulse = 1.5f;
         [SerializeField] private float flapAnimSpeed = 3f;
         [SerializeField] private float flapAnimDuration = 0.35f;
+        [Tooltip("How long the bee screws its eyes shut while flapping.")]
+        [SerializeField] private float flapBlinkDuration = 0.15f;
 
         private Rigidbody2D BeeBody => beeBody ??= GetComponent<Rigidbody2D>();
 
         private int beeId;
         private Vector3 defaultBeeScale;
+        private BeePresenter beePresenter;
 
         // Intentional movement, and the transient kicks layered on top of it (flap, ground bounce).
         // They are tracked separately so a kick is not immediately smoothed away by the movement.
@@ -56,6 +59,7 @@ namespace YukiQuest.Gameplay
             beeId = id;
 
             defaultBeeScale = baseTransform.localScale;
+            beePresenter = GetComponent<BeePresenter>();
 
             // No gravity and no tumbling; the prefab values must not fight this.
             BeeBody.gravityScale = 0f;
@@ -117,6 +121,9 @@ namespace YukiQuest.Gameplay
 
             impulseVelocity += Vector2.up * beeList[beeId].FlapForce;
             flurryTimer = flapAnimDuration;
+
+            if (beePresenter != null)
+                beePresenter.Blink(flapBlinkDuration);
         }
 
         private void UpdateWingSpeed()
@@ -132,8 +139,14 @@ namespace YukiQuest.Gameplay
         private void OnCollisionEnter2D(Collision2D other)
         {
             if (!other.gameObject.CompareTag("Bounds")) return;
+
             var normal = other.contacts.First().normal;
-            impulseVelocity += normal * bounceImpulse;
+
+            // A bounce REPLACES the current kick rather than adding to it. Holding the bee into the
+            // ground re-triggers this every time it settles back onto the collider, and those
+            // impulses used to stack faster than impulseDecay could bleed them off — enough to
+            // launch the bee off the top of the stage.
+            impulseVelocity = normal * bounceImpulse;
         }
 
         private void OnDestroy()

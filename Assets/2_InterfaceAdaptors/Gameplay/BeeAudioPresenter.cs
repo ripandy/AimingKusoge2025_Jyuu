@@ -14,11 +14,25 @@ namespace YukiQuest.Gameplay
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private GameObject eyesClosedObject;
         [SerializeField] private float cooldown = 10f;
-        
+
+        [Header("Voice")]
+        [Tooltip("Which family member voices this bee. Randomized on Awake unless the toggle below is off.")]
+        [SerializeField] private BeeVoice voice;
+        [SerializeField] private bool randomizeVoiceOnAwake = true;
+
         private AudioSource AudioSource => audioSource ??= GetComponentInChildren<AudioSource>();
-        
+
         private float cooldownTimer;
-        
+
+        /// <summary>The family member this bee speaks as, fixed for its whole lifetime.</summary>
+        public BeeVoice Voice => voice;
+
+        private void Awake()
+        {
+            if (!randomizeVoiceOnAwake) return;
+            voice = (BeeVoice)Random.Range(0, System.Enum.GetValues(typeof(BeeVoice)).Length);
+        }
+
         public void Play(BeeAudioEnum beeAudio)
         {
             if (beeAudio == BeeAudioEnum.None) return;
@@ -33,10 +47,35 @@ namespace YukiQuest.Gameplay
             var audioList = beeAudioKeyValuePair.FirstOrDefault(pair => pair.Key == beeAudio).Value;
             if (audioList == null) return;
 
-            var randomIndex = Random.Range(0, audioList.Count);
-            AudioSource.PlayOneShot(audioList[randomIndex]);
+            var clip = PickClipInVoice(audioList);
+            if (clip == null) return;
+
+            AudioSource.PlayOneShot(clip);
 
             Cooldown().Forget();
+        }
+
+        /// <summary>
+        /// Picks a take of this line spoken by the bee's own voice, so a single bee does not switch
+        /// between five different family members mid-game.
+        /// </summary>
+        private AudioClip PickClipInVoice(SoarList<AudioClip> audioList)
+        {
+            // Selection is by clip name, not by index: the lists are not ordered consistently by
+            // member (BeeAudio_Mitsuda has Ranca_4 sitting among the Ibun takes), so the same index
+            // means a different speaker from one line to the next.
+            var token = $"_{voice}_";
+            var inVoice = audioList
+                .Where(clip => clip != null &&
+                               clip.name.IndexOf(token, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+
+            if (inVoice.Count > 0) return inVoice[Random.Range(0, inVoice.Count)];
+
+            // Not every line was recorded by every member — Pyon is Raina only, and Watashimo has no
+            // Aya. Another voice beats silence for those.
+            var anyVoice = audioList.Where(clip => clip != null).ToList();
+            return anyVoice.Count > 0 ? anyVoice[Random.Range(0, anyVoice.Count)] : null;
         }
 
         private async UniTaskVoid Cooldown()
