@@ -958,6 +958,7 @@ MonoBehaviour:
   beeList: {fileID: 11400000, guid: 061579954f45441e6b9cf3f8289a8865, type: 2}
   nectarText: {fileID: 6215002797818576722}
   blinkObject: {fileID: 650912769251420746}
+  blinkDuration: 0.2
 --- !u!114 &5524726687753994266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -982,6 +983,7 @@ MonoBehaviour:
   bounceImpulse: 1.5
   flapAnimSpeed: 3
   flapAnimDuration: 0.35
+  flapBlinkDuration: 0.15
 --- !u!114 &1713933332108565806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1041,7 +1043,9 @@ MonoBehaviour:
     <Value>k__BackingField: {fileID: 11400000, guid: e4479b02edf7344058cd328bf2bcf2fc, type: 2}
   audioSource: {fileID: 5679935614827390712}
   eyesClosedObject: {fileID: 8080508543706147561}
-  cooldown: 10
+  cooldown: 3
+  voice: 0
+  randomizeVoiceOnAwake: 1
 --- !u!114 &1249648226048474621
 MonoBehaviour:
   m_ObjectHideFlags: 0
