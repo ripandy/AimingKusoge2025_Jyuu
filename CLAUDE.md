@@ -4,15 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Unity 6000.5.5f1 (URP 2D) game — **YukiQuest** (display title ユキちゃんたちの大冒険), a
+Unity 6000.5.6f1 (URP 2D) game — **YukiQuest** (display title ユキちゃんたちの大冒険), a
 kid-friendly nature/insects adventure structured as **chapters of mini-games**. Company
 **WanderWonder Games**, bundle `com.ripandy.yukiquest`. Chapter 1 is a bee that gathers nectar from
 flowers and returns to the hive; future chapters (e.g. a ダンゴムシ side-scroller) plug in as isolated
-per-scene modules. Currently on branch `refactor/maintenance_and_rebranding`.
+per-scene modules.
+
+Audience is roughly kindergarten to 3rd grade, and the art and gameplay concepts come from the
+author's daughter. Bias towards realising her ideas simply and legibly; there is no fail state
+anywhere in Chapter 1, by design.
 
 ## Build, Run & Test
 
-There is no CLI build script; work through the Unity Editor (open with Unity 6000.5.5f1).
+There is no CLI build script; work through the Unity Editor (open with Unity 6000.5.6f1).
 
 - **Play/run**: open `Assets/4_Scenes/Core.unity` and enter Play mode. Build scene order is
   `Core` → `Title` → `Gameplay` (see `ProjectSettings/EditorBuildSettings.asset`). `Core` is the
@@ -22,6 +26,15 @@ There is no CLI build script; work through the Unity Editor (open with Unity 600
   `Soar.Tests` (in the SOAR package, not this project's `Assets`). Run a single test by selecting
   it in the Test Runner tree, or via CLI:
   `Unity -runTests -projectPath . -testFilter <FullyQualifiedTestName> -testPlatform EditMode`.
+- **Compile-checking without the Editor**: the Editor holds the project lock, so batchmode is
+  usually unavailable. `csc` can build the assemblies directly against
+  `<UnityInstall>/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api` (plus its
+  `Facades`), `.../Scripting/Managed/UnityEngine/UnityEngine*.dll`, this project's
+  `Library/ScriptAssemblies/*.dll` and `Assets/Packages/**/*.dll`. Pass `-nostdlib+`. This catches
+  API and reference errors, not behaviour.
+- **One-shot setup**: menu `YukiQuest → Setup → Wire Normal Gameplay` (`Assets/Editor/`) creates and
+  wires the SOAR assets the gameplay components need. Idempotent, and deletable once the project is
+  wired.
 
 ## Architecture
 
@@ -36,7 +49,9 @@ Clean Architecture, with dependencies pointing inward. Folders are numbered by l
 - **`Assets/2_InterfaceAdaptors`** (`InterfaceAdaptors` asmdef, `YukiQuest.*` namespaces) —
   MonoBehaviour **presenters** and controllers that implement the domain interfaces, DI installers
   (`YukiQuest.Installer`), SOAR ScriptableObject wrappers (`YukiQuest.SOAR`), and chapter-system
-  glue (`YukiQuest.Core`, e.g. `ChapterCatalog`).
+  glue (`YukiQuest.Core`, e.g. `ChapterCatalog`). Also holds view-only helpers that implement no
+  domain interface at all and are wired purely through the Inspector — `CameraFollow`,
+  `ParallaxLayer`, `StageBoundsPublisher`.
 - **`Assets/3_Contents`** — art, prefabs, audio, ScriptableObject asset instances.
 - **`Assets/4_Scenes`** — `Core`, `Title`, `Gameplay`, `DefaultUIEnvironment`.
 
@@ -44,9 +59,44 @@ Clean Architecture, with dependencies pointing inward. Folders are numbered by l
 `GameplayStateMachine` (a MonoBehaviour) runs an async loop: each `IGameState.Running(ct)` returns
 the **next** `GameStateEnum`; the machine keeps calling states until `GameStateEnum.None`, then
 executes `resetAppCommand`. States: `IntroGameState` → `PlayGameState` → `GameOverGameState`.
-`PlayGameState` orchestrates gameplay with recursive `UniTaskVoid` loops (bee deployment, harvest,
-store-nectar) gated by `UniTaskCompletionSource` and a linked `CancellationTokenSource` used as the
-"game over" token.
+`PlayGameState` deploys the player bee, then runs recursive `UniTaskVoid` loops (harvest,
+store-nectar) gated by a `UniTaskCompletionSource` and a linked `CancellationTokenSource` used as
+the "game over" token. It finishes when `Game.IsLevelCleared` — `CollectedNectar` reaches
+`targetNectar[level]`, authored on `GameJsonableVariable.asset`. A level with **no** authored quota
+counts as never cleared rather than instantly cleared.
+
+### Chapter 1 — bee collect & deliver
+One player-controlled bee (entry 0 of `BeeList`); the remaining entries are tuning data for AI
+helper bees that do not exist yet. Fly to a flower, hover until the dwell ring fills to collect
+pollen, carry it home, hover at the hive to deliver the **whole** load, repeat until the quota
+clears the stage.
+
+- **No gravity.** `BeeMoveController` sets `gravityScale = 0` and freezes rotation in code so the
+  prefab cannot fight it, then drives `linearVelocity` directly through `SmoothDamp`. Transient
+  kicks (flap, ground bounce) live in a *separate* `impulseVelocity` that decays on its own —
+  folding them into the smoothed movement erases them within a frame or two. A bounce **replaces**
+  the current kick rather than adding to it; accumulating them let a player who holds into the
+  ground launch off the top of the stage.
+- **Boundaries are data, not colliders.** `StageBoundsPublisher` writes the chapter's extent into a
+  `StageBoundsVariable` on `Awake`; `BoundaryHandler` clamps the sides and returns the bee to the
+  hive when it exits the top, keeping its pollen. No wrapping, no ceiling collider.
+- **The camera lives in `Core.unity`**, which outlives every chapter and so cannot reference chapter
+  scene objects. `CameraFollow` reads a `Variable<Transform>` that the bee assigns to itself, plus
+  the shared `StageBoundsVariable` for edge clamping. Use this SOAR-variable handoff for anything
+  else that must cross the Core/chapter boundary — a runtime-instantiated prefab cannot hold a
+  scene reference either, which is why the hive spawn point is published the same way.
+- **Dwell actions** are `BeeTriggerAction` subclasses (`BeeHarvestPresenter`,
+  `BeeStoreNectarPresenter`): trigger-stay timers that fill a radial `Image`, then resolve a
+  `UniTask` the domain is already awaiting.
+
+### Bee voice audio
+Clips are named `<Line>_<Member>_<take>.mp3` for five family members (Apap, Ibun, Ranca, Raina,
+Aya). A bee picks one `BeeVoice` on `Awake` and keeps it for life, so it does not switch speakers
+between lines. `BeeAudioPresenter` therefore selects **by clip name, not by index** — the
+`SoarList`s are not ordered consistently by member (`BeeAudio_Mitsuda` has `Ranca_4` sitting among
+the Ibun takes), so equal indices mean different speakers across lines. Not every line was recorded
+by every member (`Pyon` is Raina only; `Watashimo` has no Aya); those combinations fall back to any
+available take rather than going silent.
 
 ### Chapter system (mini-games)
 The game is a set of chapters, each a self-contained mini-game. **`AppStateManagement` is the chapter
