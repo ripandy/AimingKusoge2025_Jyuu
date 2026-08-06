@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.SOAR.StageBoundsVariable
   value:
     serializedVersion: 2
-    x: -10
-    y: -6
-    width: 20
+    x: -3.5
+    y: -5.02
+    width: 37
     height: 14
   valueEventType: 0
   autoResetValue: 0

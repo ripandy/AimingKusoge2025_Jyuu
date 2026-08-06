@@ -14,6 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.SOAR.GameJsonableVariable
   value:
     level: 0
-    targetNectar: 0c000000
   valueEventType: 1
   autoResetValue: 0

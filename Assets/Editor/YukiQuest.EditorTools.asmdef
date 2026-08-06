@@ -1,0 +1,23 @@
+{
+    "name": "YukiQuest.EditorTools",
+    "rootNamespace": "YukiQuest.EditorTools",
+    "references": [
+        "Domain",
+        "InterfaceAdaptors",
+        "Soar",
+        "Soar.Base",
+        "Doinject",
+        "UniTask"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

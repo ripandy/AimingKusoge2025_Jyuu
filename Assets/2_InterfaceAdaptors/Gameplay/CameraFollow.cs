@@ -9,6 +9,12 @@ namespace YukiQuest.Gameplay
     /// stage edges. Lives on the Core scene's camera, which outlives every chapter, so both the
     /// target and the extent arrive through SOAR variables rather than scene references.
     /// </summary>
+    /// <remarks>
+    /// Runs late, and explicitly ahead of <see cref="ParallaxLayer"/>: both work in LateUpdate, and
+    /// with equal ordering Unity is free to move the layers first, leaving them a frame behind the
+    /// camera. That reads as the background wobbling against the ground while scrolling.
+    /// </remarks>
+    [DefaultExecutionOrder(100)]
     [RequireComponent(typeof(Camera))]
     public class CameraFollow : MonoBehaviour
     {
