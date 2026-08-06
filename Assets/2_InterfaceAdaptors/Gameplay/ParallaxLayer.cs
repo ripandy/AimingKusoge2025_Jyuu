@@ -6,6 +6,11 @@ namespace YukiQuest.Gameplay
     /// Offsets a background layer against the camera to fake depth. A factor of 0 leaves the layer
     /// pinned to the world (foreground); 1 pins it to the camera (infinitely distant sky).
     /// </summary>
+    /// <remarks>
+    /// Ordered after <see cref="CameraFollow"/> so it always reads the camera position for the frame
+    /// being rendered, never the previous one.
+    /// </remarks>
+    [DefaultExecutionOrder(200)]
     public class ParallaxLayer : MonoBehaviour
     {
         [SerializeField, Range(0f, 1f)] private float horizontalFactor = 0.5f;
@@ -14,6 +19,16 @@ namespace YukiQuest.Gameplay
         private Transform cameraTransform;
         private Vector3 startPosition;
         private Vector3 cameraStartPosition;
+
+        /// <summary>
+        /// Sets the scroll factors on a layer built at runtime. Safe to call before or after
+        /// <see cref="Start"/> — it only touches the tuning values, never the sampled origins.
+        /// </summary>
+        public void Configure(float horizontal, float vertical)
+        {
+            horizontalFactor = Mathf.Clamp01(horizontal);
+            verticalFactor = Mathf.Clamp01(vertical);
+        }
 
         private void Start()
         {

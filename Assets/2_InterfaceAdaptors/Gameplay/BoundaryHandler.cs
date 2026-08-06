@@ -17,12 +17,18 @@ namespace YukiQuest.Gameplay
         [SerializeField] private Variable<Transform> hivePoint;
 
         private BeeMoveController beeMoveController;
+        private Rigidbody2D beeBody;
         private IDisposable subscription;
 
         private void Start()
         {
             beeMoveController = GetComponent<BeeMoveController>();
-            subscription = Observable.EveryUpdate(destroyCancellationToken)
+            beeBody = GetComponent<Rigidbody2D>();
+
+            // On the physics clock, not the render clock. The bee is an interpolated Rigidbody2D, so
+            // its transform between fixed steps is a *visual* guess — clamping that and writing it
+            // back would feed the guess into the simulation and make the bee shudder along a wall.
+            subscription = Observable.EveryUpdate(UnityFrameProvider.FixedUpdate, destroyCancellationToken)
                 .Subscribe(_ => HandleBoundaries());
         }
 
@@ -33,7 +39,7 @@ namespace YukiQuest.Gameplay
             var bounds = stageBounds.Value;
             if (bounds.width <= 0f || bounds.height <= 0f) return;
 
-            var position = transform.position;
+            var position = beeBody != null ? beeBody.position : (Vector2)transform.position;
 
             if (position.y > bounds.yMax)
             {
@@ -41,18 +47,30 @@ namespace YukiQuest.Gameplay
                 return;
             }
 
-            position.x = Mathf.Clamp(position.x, bounds.xMin, bounds.xMax);
-            transform.position = position;
+            var clampedX = Mathf.Clamp(position.x, bounds.xMin, bounds.xMax);
+
+            // Only write when the clamp actually bites. An unconditional assignment every step
+            // re-syncs the physics transform and discards the interpolation state, which reads as
+            // jitter even when the bee is nowhere near an edge.
+            if (Mathf.Approximately(clampedX, position.x)) return;
+
+            MoveTo(new Vector2(clampedX, position.y));
         }
 
         private void ReturnToHive()
         {
             if (hivePoint == null || hivePoint.Value == null) return;
 
-            transform.position = hivePoint.Value.position;
+            MoveTo(hivePoint.Value.position);
 
             if (beeMoveController != null)
                 beeMoveController.ResetMomentum();
+        }
+
+        private void MoveTo(Vector2 position)
+        {
+            if (beeBody != null) beeBody.position = position;
+            else transform.position = position;
         }
 
         private void OnDestroy()

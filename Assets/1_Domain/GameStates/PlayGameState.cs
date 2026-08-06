@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Domain.Chapters.BeeHarvest;
 using Domain.Interfaces;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ namespace Domain.GameStates
         
         private readonly IList<Bee> beeList;
         private readonly IList<Flower> flowerList;
+        private readonly IList<LevelData> levels;
         private readonly IGamePresenter gamePresenter;
 
         private readonly IDictionary<int, IBeePresenter> beePresenters;
@@ -39,6 +41,7 @@ namespace Domain.GameStates
             Game game,
             IList<Bee> beeList,
             IList<Flower> flowerList,
+            IList<LevelData> levels,
             IGamePresenter gamePresenter,
             IDictionary<int, IBeePresenter> beePresenters,
             IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters,
@@ -50,6 +53,7 @@ namespace Domain.GameStates
             this.game = game;
             this.beeList = beeList;
             this.flowerList = flowerList;
+            this.levels = levels;
             this.gamePresenter = gamePresenter;
             this.beePresenters = beePresenters;
             this.beeHarvestPresenters = beeHarvestPresenters;
@@ -64,8 +68,9 @@ namespace Domain.GameStates
             cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             gameCompletionSource = new UniTaskCompletionSource<bool>();
 
-            // NOTE: due to Game being a struct, the initialization from intro state is not reflected here. Hence, re-initialize.
-            game.Initialize();
+            // NOTE: due to Game being a struct, the initialization from intro state is not reflected
+            // here. Hence, re-initialize — including re-reading the quota off the level data.
+            game.Initialize(levels.LevelFor(game.Level).RequiredNectar);
             gamePresenter.Show(game);
 
             DeployBee().Forget();
@@ -109,20 +114,29 @@ namespace Domain.GameStates
             {
                 Debug.Log($"[{GetType().Name}] Bee {beeId} trying to harvests Flower");
                 var flowerId = await beeHarvestPresenter.WaitForHarvest(GameOverToken);
-                var flower = flowerList[flowerId];
-                var bee = beeList[beeId];
-                if (!flower.IsEmpty)
+
+                // Never bail out of this loop on a bad id: the loop is the only thing that re-arms
+                // WaitForHarvest, so returning here would leave the bee unable to harvest for the
+                // rest of the run. Log it and let the tail re-arm.
+                if (flowerId < 0 || flowerId >= flowerList.Count)
                 {
+                    Debug.LogError($"[{GetType().Name}] Harvested unknown flower {flowerId}; the stage " +
+                                   $"and the flower list are out of sync.");
+                }
+                else if (!flowerList[flowerId].IsEmpty)
+                {
+                    var flower = flowerList[flowerId];
+                    var bee = beeList[beeId];
                     var harvested = flower.Harvest(bee.harvestPower);
                     bee.Carry(harvested);
                     
                     beeList[bee.Id] = bee;
                     flowerList[flower.Id] = flower;
                     
-                    Debug.Log($"[{GetType().Name}] Bee {bee.Id} harvested {harvested} from Flower {flower.Id}. Bee nectar={bee.Nectar}/{bee.capacity}, Flower nectar={flower.CurrentNectar}/{flower.nectar}");
-                    
+                    Debug.Log($"[{GetType().Name}] Bee {bee.Id} harvested {harvested} from Flower {flower.Id}. Bee nectar={bee.Nectar}/{bee.capacity}, Flower nectar={flower.CurrentNectar}/{flower.MaxNectar}");
+
                     beePresenters[bee.Id].Show(bee.Id);
-                    flowerPresenters[flower.Id].Show(flower.CurrentNectar, flower.nectar);
+                    flowerPresenters[flower.Id].Show(flower.CurrentNectar, flower.MaxNectar);
                     
                     // TODO: present harvested animation
                     await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();

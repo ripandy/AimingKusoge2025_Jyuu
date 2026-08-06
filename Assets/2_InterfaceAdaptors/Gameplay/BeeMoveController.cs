@@ -72,6 +72,12 @@ namespace YukiQuest.Gameplay
             // timer. Nothing here ever wants it asleep.
             BeeBody.sleepMode = RigidbodySleepMode2D.NeverSleep;
 
+            // Movement is driven from FixedUpdate but the camera reads this transform in LateUpdate,
+            // so without interpolation the camera samples a position that only changes 50 times a
+            // second while it renders at 60+ — the bee shimmers against the scrolling stage. This was
+            // invisible while the background was static and the camera did not move.
+            BeeBody.interpolation = RigidbodyInterpolation2D.Interpolate;
+
             ResetMomentum();
 
             if (playerBeeTransform != null)

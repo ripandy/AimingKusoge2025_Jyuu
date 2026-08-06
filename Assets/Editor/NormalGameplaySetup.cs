@@ -118,7 +118,7 @@ namespace YukiQuest.EditorTools
 
             RetireCeilingCollider(scene);
 
-            var factory = Object.FindFirstObjectByType<BeePresenterFactory>(FindObjectsInactive.Include);
+            var factory = Object.FindAnyObjectByType<BeePresenterFactory>(FindObjectsInactive.Include);
             if (factory == null)
                 Debug.LogError("[NormalGameplaySetup] No BeePresenterFactory in Gameplay.");
             else
@@ -127,7 +127,7 @@ namespace YukiQuest.EditorTools
                 PrefabUtility.RecordPrefabInstancePropertyModifications(factory);
             }
 
-            var publisher = Object.FindFirstObjectByType<StageBoundsPublisher>(FindObjectsInactive.Include);
+            var publisher = Object.FindAnyObjectByType<StageBoundsPublisher>(FindObjectsInactive.Include);
             if (publisher == null)
             {
                 publisher = new GameObject("StageBounds").AddComponent<StageBoundsPublisher>();

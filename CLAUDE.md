@@ -32,9 +32,17 @@ There is no CLI build script; work through the Unity Editor (open with Unity 600
   `Facades`), `.../Scripting/Managed/UnityEngine/UnityEngine*.dll`, this project's
   `Library/ScriptAssemblies/*.dll` and `Assets/Packages/**/*.dll`. Pass `-nostdlib+`. This catches
   API and reference errors, not behaviour.
-- **One-shot setup**: menu `YukiQuest → Setup → Wire Normal Gameplay` (`Assets/Editor/`) creates and
-  wires the SOAR assets the gameplay components need. Idempotent, and deletable once the project is
-  wired.
+  Note the domain assembly is `autoReferenced: false`, so `Assets/Editor/` carries its own
+  `YukiQuest.EditorTools.asmdef` to see `Domain` types.
+- **One-shot setup** (`Assets/Editor/`, all idempotent and deletable once run):
+  - `YukiQuest → Setup → Wire Normal Gameplay` — creates and wires the SOAR assets the gameplay
+    components need.
+  - `YukiQuest → Setup → Prepare Procedural Stage` — migrates the hand-authored stage to a generated
+    one: extracts the scene's ground art into tile prefabs, seeds `LevelCollection.asset`, strips the
+    now-generated scene objects and rewires the installer. It never overwrites an existing level
+    collection.
+- **`YukiQuest → Validate Levels`** — checks every authored level for the soft-lock (quota above
+  available nectar) and for scales that make flower triggers overlap their neighbours.
 
 ## Architecture
 
@@ -52,7 +60,8 @@ Clean Architecture, with dependencies pointing inward. Folders are numbered by l
   glue (`YukiQuest.Core`, e.g. `ChapterCatalog`). Also holds view-only helpers that implement no
   domain interface at all and are wired purely through the Inspector — `CameraFollow`,
   `ParallaxLayer`, `StageBoundsPublisher`.
-- **`Assets/3_Contents`** — art, prefabs, audio, ScriptableObject asset instances.
+- **`Assets/3_Contents`** — art, prefabs, audio, ScriptableObject asset instances. Per-chapter
+  content lives under `Chapters/<Name>/` (levels, generated-stage prefabs).
 - **`Assets/4_Scenes`** — `Core`, `Title`, `Gameplay`, `DefaultUIEnvironment`.
 
 ### Game loop / state machine
@@ -61,9 +70,14 @@ the **next** `GameStateEnum`; the machine keeps calling states until `GameStateE
 executes `resetAppCommand`. States: `IntroGameState` → `PlayGameState` → `GameOverGameState`.
 `PlayGameState` deploys the player bee, then runs recursive `UniTaskVoid` loops (harvest,
 store-nectar) gated by a `UniTaskCompletionSource` and a linked `CancellationTokenSource` used as
-the "game over" token. It finishes when `Game.IsLevelCleared` — `CollectedNectar` reaches
-`targetNectar[level]`, authored on `GameJsonableVariable.asset`. A level with **no** authored quota
-counts as never cleared rather than instantly cleared.
+the "game over" token. It finishes when `Game.IsLevelCleared` — `CollectedNectar` reaches the quota
+authored on the level (`LevelData.RequiredNectar`). A level with **no** quota counts as never cleared
+rather than instantly cleared.
+
+`Game` is a **struct bound by value at install time**, so each state gets its own copy and mutations
+never flow back. `IntroGameState` and `PlayGameState` therefore both re-read the level and call
+`game.Initialize(requiredNectar)` for themselves. It also means `GameOverGameState` still reports the
+install-time `CollectedNectar` (zero) — a known wart, not a new one.
 
 ### Chapter 1 — bee collect & deliver
 One player-controlled bee (entry 0 of `BeeList`); the remaining entries are tuning data for AI
@@ -79,10 +93,23 @@ clears the stage.
   ground launch off the top of the stage. The body is also forced to
   `RigidbodySleepMode2D.NeverSleep`: without gravity the bee stops dead when the player lets go,
   and Unity does not send `OnTriggerStay2D` to a sleeping body — so it would freeze the very dwell
-  timer it was hovering to fill.
-- **Boundaries are data, not colliders.** `StageBoundsPublisher` writes the chapter's extent into a
-  `StageBoundsVariable` on `Awake`; `BoundaryHandler` clamps the sides and returns the bee to the
-  hive when it exits the top, keeping its pollen. No wrapping, no ceiling collider.
+  timer it was hovering to fill. Finally `RigidbodyInterpolation2D.Interpolate`, because movement runs
+  on FixedUpdate while the camera samples the transform in LateUpdate; without it the camera chases a
+  50 Hz position at display rate and the bee shimmers against the scrolling stage.
+- **Anything that repositions the bee must run on FixedUpdate and only write when the value actually
+  changes** (see `BoundaryHandler`). Between fixed steps an interpolated body's transform is a visual
+  guess; clamping *that* and assigning it back feeds the guess into the simulation. An unconditional
+  per-frame write also discards the interpolation state, which looks like jitter even far from any
+  edge. Prefer `Rigidbody2D.position` over `transform.position`.
+- **`CameraFollow` and `ParallaxLayer` both run in LateUpdate**, so they carry explicit
+  `[DefaultExecutionOrder]` values (100 / 200). At equal ordering Unity may move the layers first,
+  leaving them a frame behind the camera — the background visibly wobbles against the ground.
+- **The stage is generated, not authored.** See "Procedural stage" below. `Gameplay.unity` holds no
+  flowers, no ground and no stage-bounds object — only the DI context, the UI and the hive.
+- **Boundaries are data, not colliders.** `StageGenerator` writes the computed extent into a
+  `StageBoundsVariable`; `BoundaryHandler` clamps the sides and returns the bee to the hive when it
+  exits the top, keeping its pollen. No wrapping, no ceiling collider. (`StageBoundsPublisher` is
+  the hand-authored equivalent, kept for chapters that don't generate their stage.)
 - **The camera lives in `Core.unity`**, which outlives every chapter and so cannot reference chapter
   scene objects. `CameraFollow` reads a `Variable<Transform>` that the bee assigns to itself, plus
   the shared `StageBoundsVariable` for edge clamping. Use this SOAR-variable handoff for anything
@@ -96,6 +123,47 @@ clears the stage.
   for that neighbour, so an Enter-based version could never re-commit and the ring stuck at full
   forever. For the same reason `ExecuteAction` must not decline: the domain is awaiting it, and a
   consumed request that resolves into nothing hangs that loop for the rest of the run.
+- **Flower identity is `FlowerPresenter.Id`**, stamped by the generator. It used to be the scene
+  sibling index, which forced the flower asset, the installer array and the scene hierarchy to agree
+  on an order and broke silently when any of them changed.
+
+### Procedural stage (Chapter 1)
+A level is one `LevelData` on `LevelCollection.asset` (`Domain.Chapters.BeeHarvest`): a nectar quota
+plus a **one-dimensional array of `FlowerBlock`** — `{FlowerType, nectar, scale}`, where
+`FlowerType.None` is an empty block used purely for spacing. **Level N is index N−1.** `FlowerType`
+values are persisted in the asset, so the enum is append-only.
+
+`StageGenerator` (bound as the domain's `IStagePresenter`) turns that into the world during
+`IntroGameState`: it publishes the stage bounds, tiles the parallax ground, scatters seeded
+decoration, lays one `EdgeCollider2D` tagged `Bounds`, moves the hive to the right edge, and
+instantiates the flowers. Everything it makes lives under one scene-root object, so `Clear()` is one
+Destroy.
+
+- **Blocks carry no position.** Block *i* sits at `blockWidth * i`; `blockWidth` is a generator
+  constant, because spacing is a presentation concern. Vertical extent is a constant too — the bee's
+  ceiling is feel, not level design.
+- **`LevelData.Flowers` is the single source of truth for block index → flower id.** The domain walks
+  it to build `Flower` entities and the generator walks it to instantiate prefabs; anything that
+  makes the two walks disagree (skipping a flower, a prefab without a `FlowerPresenter`) puts every
+  later flower on the wrong entity, so both failure paths abort loudly instead of continuing.
+- **Parallax width.** A layer scrolling at factor `f` drifts `(1−f)×` the camera's travel relative to
+  the camera, so it needs at most a full **stage width** of tiles — the worst case being `f = 0`.
+  Tiling that much, centred on the stage, covers every factor regardless of where the camera happened
+  to be when `ParallaxLayer` sampled its origin. Tile pitch is measured off a real instance, because
+  `Renderer.bounds` is unreliable on an uninstantiated prefab asset.
+- **No pooling.** The stage is finite and its width is known before the first tile is placed; a long
+  level is a few dozen batched `SpriteRenderer`s that Unity frustum-culls anyway. Pooling buys
+  nothing here and costs seam bugs and per-position variation. If it ever matters, the escape hatch
+  is `SpriteRenderer.drawMode = Tiled`, not a recycler.
+- **The hive is moved, never rebuilt** — the installer references its `BeePresenterFactory` by scene
+  id. Its `SpawnPoint` is a child, so the bee spawns at the right edge and flies left. **Anchor it by
+  its rendered right edge, never by its root**: the branch art's pivot sits ~9.5 units left of the
+  sprite and the delivery trigger a further ~2.5 left of that, so placing the root at the stage edge
+  throws the trigger clean outside the bounds — where `BoundaryHandler`'s x-clamp means the bee can
+  never touch it. The generator asserts the trigger landed inside the stage.
+- **Levels can soft-lock.** `PlayGameState` only harvests while some flower still holds nectar, so a
+  level whose flowers hold less than its quota simply stops with no state to end it. `YukiQuest →
+  Validate Levels` treats that as an error; author a surplus.
 
 ### Bee voice audio
 Clips are named `<Line>_<Member>_<take>.mp3` for five family members (Apap, Ibun, Ranca, Raina,
@@ -133,14 +201,17 @@ Not Zenject/VContainer. Key patterns:
 - Domain services (game states) are bound by concrete type; presenters are bound by their domain
   interface. Per-bee presenters are held in `IDictionary<int, I...Presenter>` bindings keyed by
   bee id.
+- Collections that only exist once the stage or the bees are built are **bound empty and filled at
+  runtime** — `IList<Flower>` and `IList<IFlowerPresenter>` by `IntroGameState`, the per-bee
+  dictionaries by `BeePresenterFactory`. Bind the instance, not the contents.
 - Project-wide context: `Assets/Resources/ProjectContext.asset`.
 
 ### SOAR — ScriptableObject architecture (`com.ripandy.soar`)
 The author's own framework (data/events live in ScriptableObjects). Common base types:
 `Variable<T>`, `JsonableVariable<T>`, `Command`, and SO-backed lists (`SoarList`). This project
 subclasses them, e.g. `GameJsonableVariable : JsonableVariable<Game>, IGamePresenter` — writing
-`Value = game` both persists state (JSON) and drives the presenter. `BeeList`/`FlowerList` are
-SO lists bound as `IList<Bee>`/`IList<Flower>`. Presenters generally hold a `[SerializeField]` SO
+`Value = game` both persists state (JSON) and drives the presenter. `BeeList`/`LevelCollection` are
+SO lists bound as `IList<Bee>`/`IList<LevelData>`. Presenters generally hold a `[SerializeField]` SO
 list and read entities by id.
 
 ### Async / reactive stack
