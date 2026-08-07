@@ -981,6 +981,7 @@ MonoBehaviour:
   moveSmoothTime: 0.12
   impulseDecay: 2.5
   bounceImpulse: 1.5
+  bumpImpulse: 0.8
   flapAnimSpeed: 3
   flapAnimDuration: 0.35
   flapBlinkDuration: 0.15
@@ -998,7 +999,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeeHarvestPresenter
   targetTag: Flower
   progress: {fileID: 7695931123660093424}
-  actionDelay: 3
+  actionDelay: 2
   beeAudioPresenter: {fileID: 6922410265311701712}
   mouthCloseObject: {fileID: 3871897402342583614}
 --- !u!114 &4616101392045905024
@@ -1015,7 +1016,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.Gameplay.BeeStoreNectarPresenter
   targetTag: BeeHive
   progress: {fileID: 7695931123660093424}
-  actionDelay: 3
+  actionDelay: 2
 --- !u!114 &6922410265311701712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1043,9 +1044,10 @@ MonoBehaviour:
     <Value>k__BackingField: {fileID: 11400000, guid: e4479b02edf7344058cd328bf2bcf2fc, type: 2}
   audioSource: {fileID: 5679935614827390712}
   eyesClosedObject: {fileID: 8080508543706147561}
-  cooldown: 3
+  cooldown: 2
   voice: 0
   randomizeVoiceOnAwake: 1
+  useSharedVoiceCooldown: 0
 --- !u!114 &1249648226048474621
 MonoBehaviour:
   m_ObjectHideFlags: 0

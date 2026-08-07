@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using Domain;
 using Domain.Chapters.BeeHarvest;
 using Soar;
+using Soar.Variables;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using YukiQuest.SOAR;
@@ -78,8 +79,30 @@ namespace YukiQuest.Gameplay
         [Tooltip("Mixed with the level's own numbers, so a level always scatters the same way.")]
         [SerializeField] private int decorationSeed = 1;
 
+        [Header("Decorative bees")]
+        [Tooltip("Background swarm. Collides with itself but ignores the player — that separation is " +
+                 "the DecorBee row of the Physics2D matrix, not anything in code.")]
+        [SerializeField] private GameObject decorBeePrefab;
+        [SerializeField] private int decorBeeCount = 8;
+        [Tooltip("Height band above the ground the swarm hangs around in.")]
+        [SerializeField] private Vector2 decorBeeHeightRange = new(2f, 7f);
+        [SerializeField] private string decorBeeLayerName = "DecorBee";
+        [Tooltip("How many of the swarm tag along with the player instead of wandering. They are " +
+                 "company only — they harvest nothing. Kept low: a follower hangs around the player, " +
+                 "so it is near the flower whenever they are harvesting.")]
+        [SerializeField] private int followerBeeCount = 2;
+        [Tooltip("The same PlayerBeeTransform the Core camera follows. Left empty, every bee wanders.")]
+        [SerializeField] private Variable<Transform> playerBeeTransform;
+        [Tooltip("Decor bees weigh a fraction of the player, so a shared collision throws them and " +
+                 "only nudges the player. Untick if a bump ever drags the bee off a flower it is " +
+                 "harvesting — the swarm still bounces off itself either way.")]
+        [SerializeField] private bool decorBeesCollideWithPlayer = true;
+
         /// <summary>Below this a tile would tile forever; treated as a misconfigured prefab.</summary>
         private const float MinTileWidth = 0.01f;
+
+        /// <summary>Where the player bee, the ground and the flowers all live.</summary>
+        private const int DefaultLayer = 0;
 
         private Transform stageRoot;
 
@@ -105,6 +128,7 @@ namespace YukiQuest.Gameplay
 
             BuildGround(bounds);
             BuildDecoration(bounds, level);
+            BuildDecorBees(bounds, level);
             BuildGroundCollider(bounds);
             PlaceHive(bounds);
 
@@ -348,6 +372,80 @@ namespace YukiQuest.Gameplay
                 item.transform.localPosition = new Vector3(x, y, 0f);
                 item.name = $"{prefab.name}_{index:D2}";
             }
+        }
+
+        /// <summary>
+        /// Scatters the background swarm across the stage.
+        /// </summary>
+        /// <remarks>
+        /// Goes straight under <see cref="stageRoot"/> in world space, never under a
+        /// <see cref="ParallaxLayer"/> container: parallax writes its transform every LateUpdate, and
+        /// a Rigidbody2D parented to that would have its physics transform fought every frame. The
+        /// swarm reads as background through sorting order on the prefab instead — and since it moves
+        /// under its own power, the missing parallax does not show.
+        /// </remarks>
+        private void BuildDecorBees(Rect bounds, LevelData level)
+        {
+            if (decorBeePrefab == null || decorBeeCount <= 0) return;
+
+            SeparateDecorBeePhysics();
+
+            var container = new GameObject("DecorBees").transform;
+            container.SetParent(stageRoot, worldPositionStays: false);
+
+            var random = new Random(decorationSeed ^ (level.BlockCount * 7919) ^ level.RequiredNectar);
+
+            for (var index = 0; index < decorBeeCount; index++)
+            {
+                var anchor = new Vector2(
+                    Mathf.Lerp(bounds.xMin, bounds.xMax, (float)random.NextDouble()),
+                    groundY + Mathf.Lerp(decorBeeHeightRange.x, decorBeeHeightRange.y,
+                        (float)random.NextDouble()));
+
+                var bee = Instantiate(decorBeePrefab, container);
+                bee.name = $"DecorBee_{index:D2}";
+
+                var controller = bee.GetComponent<DecorBeeController>();
+                if (controller == null)
+                {
+                    Debug.LogError($"[{GetType().Name}] {decorBeePrefab.name} has no " +
+                                   $"DecorBeeController; the swarm will not move.");
+                    return;
+                }
+
+                // The first few tag along with the player; the rest stay where they were scattered.
+                // Followers still get an anchor, so they have somewhere sensible to drift around
+                // before the player bee is deployed and after it is destroyed.
+                var follow = index < followerBeeCount ? playerBeeTransform : null;
+
+                // Each bee gets its own seed off the shared stream, so adding one bee does not
+                // reshuffle the flight paths of all the others.
+                controller.Initialize(anchor, random.Next(), follow);
+            }
+        }
+
+        /// <summary>
+        /// Keeps the swarm to itself. Decor bees collide with each other — that is the whole point —
+        /// but pass through everything on the Default layer: the player, the ground, the flower
+        /// triggers.
+        /// </summary>
+        /// <remarks>
+        /// Set here rather than in the Physics2D matrix asset so the decision reads as one checkbox
+        /// on this component instead of a hidden cell in Project Settings. It is global state, so it
+        /// is written on every build rather than assumed.
+        /// </remarks>
+        private void SeparateDecorBeePhysics()
+        {
+            var decorLayer = LayerMask.NameToLayer(decorBeeLayerName);
+            if (decorLayer < 0)
+            {
+                Debug.LogError($"[{GetType().Name}] No '{decorBeeLayerName}' layer — run " +
+                               $"YukiQuest → Setup → Add Decorative Bees. The swarm will collide " +
+                               $"with the player until you do.");
+                return;
+            }
+
+            Physics2D.IgnoreLayerCollision(decorLayer, DefaultLayer, !decorBeesCollideWithPlayer);
         }
 
         private void BuildGroundCollider(Rect bounds)
