@@ -815,6 +815,13 @@ MonoBehaviour:
   decorationYOffset: 0
   decorationYJitter: {x: -0.3, y: 0.4}
   decorationSeed: 1
+  decorBeePrefab: {fileID: 7581301266510405152, guid: 82219e04a58ab4ef8a092f6a25699e4e, type: 3}
+  decorBeeCount: 12
+  decorBeeHeightRange: {x: 2, y: 7}
+  decorBeeLayerName: DecorBee
+  followerBeeCount: 4
+  playerBeeTransform: {fileID: 11400000, guid: 2093bc66fe26c4e16b6e4b44dc14f069, type: 2}
+  decorBeesCollideWithPlayer: 0
 --- !u!1 &1665923339
 GameObject:
   m_ObjectHideFlags: 0

@@ -22,9 +22,10 @@ namespace YukiQuest.Gameplay
             Debug.Log($"[{GetType().Name}][{name}] Show...");
             uiGameObject.SetActive(true);
 
-            var restartButtonTask = restartButton.OnClickAsync(cancellationToken);
+            // var restartButtonTask = restartButton.OnClickAsync(cancellationToken);
             var exitButtonTask = exitButton.OnClickAsync(cancellationToken);
-            await UniTask.WhenAny(restartButtonTask, exitButtonTask);
+            // await UniTask.WhenAny(restartButtonTask, exitButtonTask);
+            await exitButtonTask;
             return true;
         }
     }

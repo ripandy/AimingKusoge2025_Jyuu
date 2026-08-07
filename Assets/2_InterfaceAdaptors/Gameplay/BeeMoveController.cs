@@ -33,6 +33,9 @@ namespace YukiQuest.Gameplay
         [SerializeField] private float impulseDecay = 2.5f;
         [Tooltip("Upward kick when bumping the ground. Deliberately soft.")]
         [SerializeField] private float bounceImpulse = 1.5f;
+        [Tooltip("Kick from bumping a decorative bee. Softer still — enough to feel, not enough to " +
+                 "shove the player off a flower they are harvesting.")]
+        [SerializeField] private float bumpImpulse = 0.8f;
         [SerializeField] private float flapAnimSpeed = 3f;
         [SerializeField] private float flapAnimDuration = 0.35f;
         [Tooltip("How long the bee screws its eyes shut while flapping.")]
@@ -150,15 +153,19 @@ namespace YukiQuest.Gameplay
 
         private void OnCollisionEnter2D(Collision2D other)
         {
-            if (!other.gameObject.CompareTag("Bounds")) return;
-
             var normal = other.contacts.First().normal;
+
+            // The ground gets the full bounce; anything else solid — which in this chapter means a
+            // decorative bee — gets a gentler nudge. The decor bees carry a fraction of the player's
+            // mass, so most of the collision goes into throwing them rather than moving the player,
+            // which is what keeps a bump from dragging the bee off a flower mid-dwell.
+            var kick = other.gameObject.CompareTag("Bounds") ? bounceImpulse : bumpImpulse;
 
             // A bounce REPLACES the current kick rather than adding to it. Holding the bee into the
             // ground re-triggers this every time it settles back onto the collider, and those
             // impulses used to stack faster than impulseDecay could bleed them off — enough to
             // launch the bee off the top of the stage.
-            impulseVelocity = normal * bounceImpulse;
+            impulseVelocity = normal * kick;
         }
 
         private void OnDestroy()

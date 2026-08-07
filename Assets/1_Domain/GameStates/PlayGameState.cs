@@ -139,12 +139,12 @@ namespace Domain.GameStates
                     flowerPresenters[flower.Id].Show(flower.CurrentNectar, flower.MaxNectar);
                     
                     // TODO: present harvested animation
-                    await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+                    await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: GameOverToken).SuppressCancellationThrow();
                 }
             }
             else
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+                await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: GameOverToken).SuppressCancellationThrow();
             }
             
             if (cts == null || GameOverToken.IsCancellationRequested) return;
@@ -168,7 +168,7 @@ namespace Domain.GameStates
             }
             else
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+                await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: GameOverToken).SuppressCancellationThrow();
             }
             
             if (game.IsLevelCleared)

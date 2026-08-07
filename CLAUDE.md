@@ -41,6 +41,8 @@ There is no CLI build script; work through the Unity Editor (open with Unity 600
     one: extracts the scene's ground art into tile prefabs, seeds `LevelCollection.asset`, strips the
     now-generated scene objects and rewires the installer. It never overwrites an existing level
     collection.
+  - `YukiQuest → Setup → Add Decorative Bees` — adds the `DecorBee` layer, builds `DecorBee.prefab`
+    from `Bee.prefab` and wires it into the generator. Delete the prefab to have it rebuilt.
 - **`YukiQuest → Validate Levels`** — checks every authored level for the soft-lock (quota above
   available nectar) and for scales that make flower triggers overlap their neighbours.
 
@@ -164,6 +166,44 @@ Destroy.
 - **Levels can soft-lock.** `PlayGameState` only harvests while some flower still holds nectar, so a
   level whose flowers hold less than its quota simply stops with no state to end it. `YukiQuest →
   Validate Levels` treats that as an error; author a surplus.
+- **Nothing with a `Rigidbody2D` may be parented under a `ParallaxLayer`.** The layer writes its
+  transform every LateUpdate, which fights the body's physics transform every frame. That is why the
+  decorative bees sit directly under the stage root in world space and read as background through
+  sorting order instead.
+
+### Decorative bees
+A background swarm built by `StageGenerator`'s seeded scatter and driven by `DecorBeeController` — a
+wander behaviour with no input, no harvesting and no knowledge of the game loop. `DecorBee.prefab` is
+generated from `Bee.prefab` by `YukiQuest → Setup → Add Decorative Bees`, which strips every presenter
+plus the Canvas, AudioSource and face sprites.
+
+- **They collide with each other and with nothing else.** The separation is a physics layer, not
+  code: `StageGenerator` calls `Physics2D.IgnoreLayerCollision(DecorBee, Default, …)` on every build,
+  driven by one checkbox on the component. It is set at runtime rather than in the Physics2D matrix
+  asset so the decision is visible where the swarm is configured.
+- **Bumps need their own velocity channel**, exactly as on the player bee. `DecorBeeController` writes
+  `linearVelocity = moveVelocity + impulseVelocity` every FixedUpdate, so a collision impulse written
+  straight to the body would be erased before it ever rendered — the first version of this swarm slid
+  through itself for that reason. The impulse is **assigned, never accumulated**: in a crowd, stacked
+  kicks compound faster than the decay can bleed them off.
+- **Mass is what makes the same collision read two ways.** A decor bee weighs ~0.15 against the
+  player's 1, so a shared hit throws the bee and only nudges the player. That nudge is what keeps a
+  bump from dragging the player off a flower and resetting a half-filled dwell ring — the one
+  regression to re-test whenever this is touched. `StageGenerator.decorBeesCollideWithPlayer` turns
+  it off wholesale; the swarm still bounces off itself.
+- **A few of them follow the player** (`StageGenerator.followerBeeCount`), which is the same wander
+  loop with the anchor tracking `PlayerBeeTransform` instead of standing still — the SOAR handoff the
+  Core camera already uses. They repath far more often than a wanderer, since a stale target means
+  trailing badly. **They still harvest nothing.** A companion that actually collects is a *balance*
+  change, not a feature: the level is tuned for one bee at `capacity 3, harvestPower 1`, and every
+  other `BeeList` entry is stronger — entry 1 delivers 42% of the quota in a single trip, entry 3
+  delivers 83%. Adding one removes the reason to play before it adds anything.
+- They deliberately skip `NeverSleep`: unlike the player bee, nothing here depends on
+  `OnTriggerStay2D`, so an idle bee sleeping is free.
+- **Audio is gated by a shared cooldown**, not a per-bee one. `BeeAudioPresenter.useSharedVoiceCooldown`
+  routes every opted-in bee through one static timer, so the swarm speaks one voice at a time. The
+  wince (`CloseEyes`) is deliberately *outside* that gate — every bump earns a face, only some earn a
+  yelp — and guards against re-triggering so a busy bee doesn't end up permanently squinting.
 
 ### Bee voice audio
 Clips are named `<Line>_<Member>_<take>.mp3` for five family members (Apap, Ibun, Ranca, Raina,
