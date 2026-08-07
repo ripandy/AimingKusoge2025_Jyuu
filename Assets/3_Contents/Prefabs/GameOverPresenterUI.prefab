@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u307F\u3064\u3092\u3042\u3064\u3081\u305F\uFF01"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 16abaa022e25742fb82b7a8554f8de1a, type: 2}
-  m_sharedMaterial: {fileID: 5538742259072767501, guid: 16abaa022e25742fb82b7a8554f8de1a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: eea0e74470c9b4d96a9e693d22e078a4, type: 2}
+  m_sharedMaterial: {fileID: -4224444874528232999, guid: eea0e74470c9b4d96a9e693d22e078a4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -103,6 +103,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 8
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -146,23 +147,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 431348319222603158, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 431348319222603158, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 11400000, guid: f5f66301664274e77957a2a077d633df, type: 2}
+      objectReference: {fileID: 11400000, guid: 4e49d546c906145f2bfc9cd087cc8f5e, type: 2}
     - target: {fileID: 431348319222603158, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Execute
+      value: Raise
       objectReference: {fileID: 0}
     - target: {fileID: 431348319222603158, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Ripandy.AppStateManagement.ResetAppCommand, AppStateManagement
+      value: Soar.Events.StringGameEvent, Soar.Base
       objectReference: {fileID: 0}
     - target: {fileID: 431348319222603158, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 431348319222603158, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: Gameplay
       objectReference: {fileID: 0}
     - target: {fileID: 882475185605806931, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_Spacing
@@ -427,7 +432,7 @@ PrefabInstance:
     - target: {fileID: 3033955724189285230, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_fontAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 16abaa022e25742fb82b7a8554f8de1a, type: 2}
+      objectReference: {fileID: 11400000, guid: eea0e74470c9b4d96a9e693d22e078a4, type: 2}
     - target: {fileID: 3033955724189285230, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_fontStyle
       value: 1
@@ -451,7 +456,7 @@ PrefabInstance:
     - target: {fileID: 3033955724189285230, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: 5538742259072767501, guid: 16abaa022e25742fb82b7a8554f8de1a, type: 2}
+      objectReference: {fileID: -4224444874528232999, guid: eea0e74470c9b4d96a9e693d22e078a4, type: 2}
     - target: {fileID: 3033955724189285230, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4293967358
@@ -478,7 +483,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4487831914100337939, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_Name
-      value: GameOverPresenterUI Variant
+      value: GameOverPresenterUI
       objectReference: {fileID: 0}
     - target: {fileID: 4642873969834994238, guid: 1a3e8197d63984c88b5b83949ca4ccbe, type: 3}
       propertyPath: m_Sprite

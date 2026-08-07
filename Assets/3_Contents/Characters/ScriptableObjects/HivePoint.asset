@@ -9,14 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 225e19a76c6d4661b1fae5aea8190bc2, type: 3}
-  m_Name: FlowerList
-  m_EditorClassIdentifier: InterfaceAdaptors::YukiQuest.SOAR.FlowerList
-  list:
-  - nectar: 100
-  - nectar: 60
-  - nectar: 30
-  - nectar: 40
-  - nectar: 20
+  m_Script: {fileID: 11500000, guid: d620603d587714d1391f0cc5fda9acc6, type: 3}
+  m_Name: HivePoint
+  m_EditorClassIdentifier: Soar.Base::Soar.Variables.TransformVariable
+  value: {fileID: 0}
   valueEventType: 0
   autoResetValue: 0

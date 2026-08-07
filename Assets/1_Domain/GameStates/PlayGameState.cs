@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Domain.Chapters.BeeHarvest;
 using Domain.Interfaces;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ namespace Domain.GameStates
         
         private readonly IList<Bee> beeList;
         private readonly IList<Flower> flowerList;
+        private readonly IList<LevelData> levels;
         private readonly IGamePresenter gamePresenter;
 
         private readonly IDictionary<int, IBeePresenter> beePresenters;
@@ -29,13 +31,17 @@ namespace Domain.GameStates
         private CancellationTokenSource cts;
         private CancellationToken GameOverToken => cts.Token;
 
-        private UniTaskCompletionSource<bool> firstStorageCompletionSource;
         private UniTaskCompletionSource<bool> gameCompletionSource;
+
+        // Chapter 1 is a single-bee game. The remaining BeeList entries are kept as tuning data
+        // for the AI helper bees that come later.
+        private const int PlayerBeeId = 0;
 
         public PlayGameState(
             Game game,
             IList<Bee> beeList,
             IList<Flower> flowerList,
+            IList<LevelData> levels,
             IGamePresenter gamePresenter,
             IDictionary<int, IBeePresenter> beePresenters,
             IDictionary<int, IBeeHarvestPresenter> beeHarvestPresenters,
@@ -47,6 +53,7 @@ namespace Domain.GameStates
             this.game = game;
             this.beeList = beeList;
             this.flowerList = flowerList;
+            this.levels = levels;
             this.gamePresenter = gamePresenter;
             this.beePresenters = beePresenters;
             this.beeHarvestPresenters = beeHarvestPresenters;
@@ -60,69 +67,37 @@ namespace Domain.GameStates
         {
             cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             gameCompletionSource = new UniTaskCompletionSource<bool>();
-            firstStorageCompletionSource = new UniTaskCompletionSource<bool>();
-            
-            // NOTE: due to Game being a struct, the initialization from intro state is not reflected here. Hence, re-initialize.
-            game.Initialize();
+
+            // NOTE: due to Game being a struct, the initialization from intro state is not reflected
+            // here. Hence, re-initialize — including re-reading the quota off the level data.
+            game.Initialize(levels.LevelFor(game.Level).RequiredNectar);
             gamePresenter.Show(game);
 
-            // NOTE: Bee.ID is static, so it survives a scene reload (resetAppCommand). Reset it here,
-            // otherwise the next play session starts past the end of beeList.
-            Bee.ID = 0;
-            
             DeployBee().Forget();
-            
-            await firstStorageCompletionSource.Task;
-            
-            HandleBeeDeployment().Forget();
 
             await gameCompletionSource.Task;
             await UniTask.Yield();
-            
+
             return GameStateEnum.GameOver;
-        }
-
-        private async UniTaskVoid HandleBeeDeployment()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(game.beeDeployDelay), cancellationToken: GameOverToken).SuppressCancellationThrow();
-
-            if (cts == null || GameOverToken.IsCancellationRequested) return;
-
-            DeployBee().Forget();
-
-            HandleBeeDeployment().Forget();
         }
 
         private async UniTaskVoid DeployBee()
         {
-            // all bees are already deployed
-            if (Bee.ID >= beeList.Count) return;
+            if (beeList.Count <= PlayerBeeId) return;
 
-            var bee = beeList[Bee.ID];
-            bee.Id = Bee.ID;
-            beeList[Bee.ID++] = bee;
+            var bee = beeList[PlayerBeeId];
+            bee.Id = PlayerBeeId;
+            beeList[PlayerBeeId] = bee;
             Debug.Log($"[{GetType().Name}] Bee deployed. id={bee.Id}");
 
             var (beePresenter, beeMoveController, beeHarvestPresenter, beeStoreNectarPresenter, beeAudioPresenter) =
                 await beePresenterFactory.Create(bee.Id, GameOverToken);
 
-            game.TargetNectar += bee.Capacity;
-            gamePresenter.Show(game);
-            
             beePresenter.Show(bee.Id);
             beeMoveController.Initialize(bee.Id);
 
-            var deployAudio = bee.Id == 0
-                ? BeeAudioEnum.Mitsuda //BeeAudioEnum.OnakaSuita
-                : (bee.Id % 5) switch
-                {
-                    1 => BeeAudioEnum.Mitsuda,
-                    2 => BeeAudioEnum.Hoshii,
-                    _ => BeeAudioEnum.Watashimo
-                };
+            beeAudioPresenter.Play(BeeAudioEnum.Mitsuda);
 
-            beeAudioPresenter.Play(deployAudio);
-            
             beePresenters[bee.Id] = beePresenter;
             beeHarvestPresenters[bee.Id] = beeHarvestPresenter;
             beeStoreNectarPresenters[bee.Id] = beeStoreNectarPresenter;
@@ -139,28 +114,37 @@ namespace Domain.GameStates
             {
                 Debug.Log($"[{GetType().Name}] Bee {beeId} trying to harvests Flower");
                 var flowerId = await beeHarvestPresenter.WaitForHarvest(GameOverToken);
-                var flower = flowerList[flowerId];
-                var bee = beeList[beeId];
-                if (!flower.IsEmpty)
+
+                // Never bail out of this loop on a bad id: the loop is the only thing that re-arms
+                // WaitForHarvest, so returning here would leave the bee unable to harvest for the
+                // rest of the run. Log it and let the tail re-arm.
+                if (flowerId < 0 || flowerId >= flowerList.Count)
                 {
+                    Debug.LogError($"[{GetType().Name}] Harvested unknown flower {flowerId}; the stage " +
+                                   $"and the flower list are out of sync.");
+                }
+                else if (!flowerList[flowerId].IsEmpty)
+                {
+                    var flower = flowerList[flowerId];
+                    var bee = beeList[beeId];
                     var harvested = flower.Harvest(bee.harvestPower);
                     bee.Carry(harvested);
                     
                     beeList[bee.Id] = bee;
                     flowerList[flower.Id] = flower;
                     
-                    Debug.Log($"[{GetType().Name}] Bee {bee.Id} harvested {harvested} from Flower {flower.Id}. Bee nectar={bee.Nectar}/{bee.capacity}, Flower nectar={flower.CurrentNectar}/{flower.nectar}");
-                    
+                    Debug.Log($"[{GetType().Name}] Bee {bee.Id} harvested {harvested} from Flower {flower.Id}. Bee nectar={bee.Nectar}/{bee.capacity}, Flower nectar={flower.CurrentNectar}/{flower.MaxNectar}");
+
                     beePresenters[bee.Id].Show(bee.Id);
-                    flowerPresenters[flower.Id].Show(flower.CurrentNectar, flower.nectar);
+                    flowerPresenters[flower.Id].Show(flower.CurrentNectar, flower.MaxNectar);
                     
                     // TODO: present harvested animation
-                    await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+                    await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: GameOverToken).SuppressCancellationThrow();
                 }
             }
             else
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+                await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: GameOverToken).SuppressCancellationThrow();
             }
             
             if (cts == null || GameOverToken.IsCancellationRequested) return;
@@ -180,14 +164,11 @@ namespace Domain.GameStates
                 
                 gamePresenter.Show(game);
                 beePresenters[bee.Id].Show(bee.Id);
-                Debug.Log($"[{GetType().Name}] Bee {bee.Id} stored nectar. Total nectar={game.CollectedNectar}");
-                
-                if (firstStorageCompletionSource.Task.Status == UniTaskStatus.Pending && game.CollectedNectar >= 2)
-                    firstStorageCompletionSource.TrySetResult(true);
+                Debug.Log($"[{GetType().Name}] Bee {bee.Id} stored nectar. Total nectar={game.CollectedNectar}/{game.TargetNectar}");
             }
             else
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: GameOverToken).SuppressCancellationThrow();
+                await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: GameOverToken).SuppressCancellationThrow();
             }
             
             if (game.IsLevelCleared)

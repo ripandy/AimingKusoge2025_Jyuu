@@ -35,15 +35,28 @@ namespace YukiQuest.Gameplay
 
         protected override void Initialize(Transform other)
         {
-            harvestingIndex.Value = other.parent.GetSiblingIndex();
+            harvestingIndex.Value = FlowerIdOf(other);
         }
 
         protected override void ExecuteAction(Transform other)
         {
-            var index = other.parent.GetSiblingIndex();
-            
-            if (CurrentHarvestingIndex == -1 || index != CurrentHarvestingIndex) return;
-            flowerHarvested.OnNext(CurrentHarvestingIndex);
+            // Only ever called for the flower the bee committed to, so no index check is needed —
+            // and declining here would hang the harvest loop awaiting this subject.
+            flowerHarvested.OnNext(FlowerIdOf(other));
+        }
+
+        /// <summary>
+        /// Resolves the domain flower id from the collider the bee is dwelling on. The trigger sits
+        /// on a child of the flower root, so the presenter is found by walking up.
+        /// </summary>
+        private int FlowerIdOf(Transform other)
+        {
+            var presenter = other.GetComponentInParent<FlowerPresenter>();
+            if (presenter != null) return presenter.Id;
+
+            Debug.LogError($"[{GetType().Name}][{name}] {other.name} is tagged as a flower but has no " +
+                           $"FlowerPresenter above it.");
+            return -1;
         }
 
         protected override void Cleanup(Transform other)

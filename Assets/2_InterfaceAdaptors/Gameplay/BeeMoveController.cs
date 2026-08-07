@@ -1,159 +1,179 @@
 using System;
 using System.Linq;
-using Cysharp.Threading.Tasks;
 using Domain;
 using YukiQuest.SOAR;
 using R3;
 using Soar.Variables;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace YukiQuest.Gameplay
 {
+    /// <summary>
+    /// Player control for the bee. Gravity-free: the bee holds whatever height the player flies it
+    /// to. Velocity is driven directly rather than through forces, so the handling stays
+    /// predictable for a young player.
+    /// </summary>
     public class BeeMoveController : MonoBehaviour, IBeeMoveController
     {
-        [SerializeField] private GameJsonableVariable gameData;
         [SerializeField] private BeeList beeList;
         [SerializeField] private Variable<Vector2> moveInput;
         [SerializeField] private Variable<bool> flapInput;
         [SerializeField] private Transform baseTransform;
         [SerializeField] private Rigidbody2D beeBody;
-        
-        private Rigidbody2D BeeBody => beeBody ??= GetComponent<Rigidbody2D>();
-        
-        private int beeId;
+        [SerializeField] private Animator wingAnimator;
 
-        private float moveForce = 5f;
-        private Vector2 flapForce = new(0, 5f);
+        [Header("Output")]
+        [Tooltip("Set to this bee's transform so the camera can follow it.")]
+        [SerializeField] private Variable<Transform> playerBeeTransform;
+
+        [Header("Feel")]
+        [Tooltip("How long the bee takes to reach full speed, and to coast to a stop.")]
+        [SerializeField] private float moveSmoothTime = 0.12f;
+        [Tooltip("How quickly a flap or a bounce fades out, in units per second squared.")]
+        [SerializeField] private float impulseDecay = 2.5f;
+        [Tooltip("Upward kick when bumping the ground. Deliberately soft.")]
+        [SerializeField] private float bounceImpulse = 1.5f;
+        [Tooltip("Kick from bumping a decorative bee. Softer still — enough to feel, not enough to " +
+                 "shove the player off a flower they are harvesting.")]
+        [SerializeField] private float bumpImpulse = 0.8f;
+        [SerializeField] private float flapAnimSpeed = 3f;
+        [SerializeField] private float flapAnimDuration = 0.35f;
+        [Tooltip("How long the bee screws its eyes shut while flapping.")]
+        [SerializeField] private float flapBlinkDuration = 0.15f;
+
+        private Rigidbody2D BeeBody => beeBody ??= GetComponent<Rigidbody2D>();
+
+        private int beeId;
         private Vector3 defaultBeeScale;
-        private bool isMoving;
-        private bool isRecoveringRotation;
-        
+        private BeePresenter beePresenter;
+
+        // Intentional movement, and the transient kicks layered on top of it (flap, ground bounce).
+        // They are tracked separately so a kick is not immediately smoothed away by the movement.
+        private Vector2 moveVelocity;
+        private Vector2 moveAcceleration;
+        private Vector2 impulseVelocity;
+
+        private float flurryTimer;
+
         private IDisposable subscriptions;
-        
+
         public void Initialize(int id)
         {
             beeId = id;
-            
+
             defaultBeeScale = baseTransform.localScale;
-            
-            UpdateBeePhysics(beeList[beeId]);
-            
-            // subscribe to bee updates
+            beePresenter = GetComponent<BeePresenter>();
+
+            // No gravity and no tumbling; the prefab values must not fight this.
+            BeeBody.gravityScale = 0f;
+            BeeBody.constraints = RigidbodyConstraints2D.FreezeRotation;
+            BeeBody.rotation = 0f;
+
+            // Unity does not send OnTriggerStay2D to a sleeping body. Without gravity the bee comes
+            // to a complete stop the moment the player lets go, which is precisely when it is
+            // hovering to harvest or deliver — so it would fall asleep and freeze its own dwell
+            // timer. Nothing here ever wants it asleep.
+            BeeBody.sleepMode = RigidbodySleepMode2D.NeverSleep;
+
+            // Movement is driven from FixedUpdate but the camera reads this transform in LateUpdate,
+            // so without interpolation the camera samples a position that only changes 50 times a
+            // second while it renders at 60+ — the bee shimmers against the scrolling stage. This was
+            // invisible while the background was static and the camera did not move.
+            BeeBody.interpolation = RigidbodyInterpolation2D.Interpolate;
+
+            ResetMomentum();
+
+            if (playerBeeTransform != null)
+                playerBeeTransform.Value = transform;
+
             subscriptions?.Dispose();
             var s1 = Observable
                 .EveryUpdate(UnityFrameProvider.FixedUpdate, destroyCancellationToken)
-                .Subscribe(_ =>
-                {
-                    isMoving = moveInput.Value.magnitude > 0.01f;
-                    MoveBee(moveInput.Value, ForceMode2D.Force);
-                    RecoverRotationAttempt().Forget();
-                });
+                .Subscribe(_ => Tick());
             var s2 = flapInput.AsObservable().Subscribe(FlapBee);
-            var s3 = beeList.SubscribeToValues(beeId, UpdateBeePhysics);
-            subscriptions = Disposable.Combine(s1, s2, s3);
-            
-            // initial launch
-            var launchVector = new Vector2(-1, Random.Range(-0.3f, 0.3f));
-            MoveBee(launchVector, ForceMode2D.Impulse);
-            IdleFloating().Forget();
-            
-            void UpdateBeePhysics(Bee bee)
-            {
-                moveForce = bee.MoveForce;
-                flapForce = Vector2.up * beeList[beeId].BaseWeight * BeeBody.gravityScale;
-                BeeBody.mass = bee.BaseWeight + bee.Nectar * gameData.Value.NectarWeight;
-                
-                var scale = defaultBeeScale * BeeBody.mass;
-                scale.x *= baseTransform.localScale.x < 0 ? -1 : 1;
-                baseTransform.localScale = scale;
-            }
+            subscriptions = Disposable.Combine(s1, s2);
         }
 
-        private void MoveBee(Vector2 moveVector, ForceMode2D forceMode)
+        /// <summary>
+        /// Drops all momentum. Used when the bee is returned to the hive, so it does not carry its
+        /// old velocity into the respawn.
+        /// </summary>
+        public void ResetMomentum()
         {
-            var force = moveVector * moveForce;
-            BeeBody.AddForce(force, forceMode);
-            
-            if (moveVector.x == 0) return;
-            
-            var scale = baseTransform.localScale;
-            scale.x = Mathf.Abs(scale.x) * (moveVector.x < 0 ? 1 : -1);
+            moveVelocity = Vector2.zero;
+            moveAcceleration = Vector2.zero;
+            impulseVelocity = Vector2.zero;
+            BeeBody.linearVelocity = Vector2.zero;
+        }
+
+        private void Tick()
+        {
+            var input = moveInput.Value;
+
+            moveVelocity = Vector2.SmoothDamp(
+                moveVelocity, input * beeList[beeId].MoveSpeed, ref moveAcceleration, moveSmoothTime);
+            impulseVelocity = Vector2.MoveTowards(
+                impulseVelocity, Vector2.zero, impulseDecay * Time.fixedDeltaTime);
+
+            BeeBody.linearVelocity = moveVelocity + impulseVelocity;
+
+            UpdateFacing(input.x);
+            UpdateWingSpeed();
+        }
+
+        private void UpdateFacing(float horizontal)
+        {
+            if (Mathf.Approximately(horizontal, 0f)) return;
+
+            var scale = defaultBeeScale;
+            scale.x = Mathf.Abs(scale.x) * (horizontal < 0 ? 1 : -1);
             baseTransform.localScale = scale;
         }
 
         private void FlapBee(bool isFlap)
         {
             if (!isFlap) return;
-            MoveBee(flapForce, ForceMode2D.Impulse);
+
+            impulseVelocity += Vector2.up * beeList[beeId].FlapForce;
+            flurryTimer = flapAnimDuration;
+
+            if (beePresenter != null)
+                beePresenter.Blink(flapBlinkDuration);
         }
 
-        private async UniTaskVoid RecoverRotationAttempt()
+        private void UpdateWingSpeed()
         {
-            if (isRecoveringRotation) return;
+            if (wingAnimator == null || flurryTimer <= 0f) return;
 
-            // Check if the bee is significantly tilted and its angular velocity is low.
-            var isTilted = Mathf.Abs(baseTransform.rotation.eulerAngles.z) > 45f;
-            var isSlowingDown = Mathf.Abs(BeeBody.angularVelocity) < 5f;
-
-            if (!isTilted || !isSlowingDown) return;
-
-            isRecoveringRotation = true;
-
-            const float duration = 1f;
-            var elapsedTime = 0f;
-            var startRotation = baseTransform.rotation;
-            
-            // Generate a random target Z rotation between -15 and 15 degrees
-            var randomZ = Random.Range(-15f, 15f);
-            var targetRotation = Quaternion.Euler(0, 0, randomZ);
-
-            while (elapsedTime < duration)
-            {
-                // Stop if physics causes significant rotation again
-                if (Mathf.Abs(BeeBody.angularVelocity) > 30f)
-                {
-                    isRecoveringRotation = false;
-                    return;
-                }
-
-                elapsedTime += Time.deltaTime;
-                var t = elapsedTime / duration;
-                // Use MoveRotation for smooth, physics-friendly rotation
-                BeeBody.MoveRotation(Quaternion.Slerp(startRotation, targetRotation, t));
-                await UniTask.Yield(PlayerLoopTiming.FixedUpdate, destroyCancellationToken);
-            }
-
-            BeeBody.MoveRotation(targetRotation);
-            isRecoveringRotation = false;
+            flurryTimer -= Time.fixedDeltaTime;
+            wingAnimator.speed = flurryTimer > 0f
+                ? Mathf.Lerp(1f, flapAnimSpeed, flurryTimer / flapAnimDuration)
+                : 1f;
         }
 
-        private async UniTaskVoid IdleFloating()
-        {
-            while (!destroyCancellationToken.IsCancellationRequested)
-            {
-                if (!isMoving && gameData.Value.CollectedNectar >= 2)
-                {
-                    var floatForce = Vector2.up * beeList[beeId].BaseWeight * BeeBody.gravityScale;
-                    MoveBee(floatForce, ForceMode2D.Impulse);
-                }
-
-                const float rndRange = 0.4f;
-                var delay = 1f + rndRange * 0.5f - Random.value * rndRange;
-                await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: destroyCancellationToken);
-            }
-        }
-        
         private void OnCollisionEnter2D(Collision2D other)
         {
-            if (!other.gameObject.CompareTag("Bounds")) return;
             var normal = other.contacts.First().normal;
-            MoveBee(normal * BeeBody.mass * 0.5f, ForceMode2D.Impulse);
+
+            // The ground gets the full bounce; anything else solid — which in this chapter means a
+            // decorative bee — gets a gentler nudge. The decor bees carry a fraction of the player's
+            // mass, so most of the collision goes into throwing them rather than moving the player,
+            // which is what keeps a bump from dragging the bee off a flower mid-dwell.
+            var kick = other.gameObject.CompareTag("Bounds") ? bounceImpulse : bumpImpulse;
+
+            // A bounce REPLACES the current kick rather than adding to it. Holding the bee into the
+            // ground re-triggers this every time it settles back onto the collider, and those
+            // impulses used to stack faster than impulseDecay could bleed them off — enough to
+            // launch the bee off the top of the stage.
+            impulseVelocity = normal * kick;
         }
 
         private void OnDestroy()
         {
             subscriptions?.Dispose();
+
+            if (playerBeeTransform != null && playerBeeTransform.Value == transform)
+                playerBeeTransform.Value = null;
         }
     }
 }
